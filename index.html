@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>StudyOS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0D0D0F;
+    --paper: #F5F2EC;
+    --cream: #EDE9DF;
+    --accent: #C8A96E;
+    --accent2: #7C9E87;
+    --accent-light: rgba(200,169,110,0.12);
+    --accent2-light: rgba(124,158,135,0.12);
+    --muted: #9A9590;
+    --border: rgba(13,13,15,0.1);
+    --card: #FDFBF7;
+    --shadow: 0 2px 20px rgba(13,13,15,0.07);
+    --shadow-lg: 0 8px 40px rgba(13,13,15,0.12);
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+font-family: ‘DM Sans’, sans-serif;
+background: var(–paper);
+color: var(–ink);
+min-height: 100vh;
+overflow-x: hidden;
+padding-bottom: 90px;
+}
+
+/* HEADER */
+.header {
+position: sticky; top: 0; z-index: 100;
+background: rgba(245,242,236,0.9);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+padding: 16px 20px 12px;
+border-bottom: 1px solid var(–border);
+}
+.header-inner { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-family: ‘Syne’, sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
+.logo span { color: var(–accent); }
+.score-badge {
+display: flex; align-items: center; gap: 8px;
+background: var(–ink); color: var(–paper);
+padding: 7px 14px; border-radius: 50px;
+font-family: ‘Syne’, sans-serif; font-size: 13px; font-weight: 700;
+cursor: pointer;
+}
+.score-dot { width: 8px; height: 8px; border-radius: 50%; background: var(–accent); }
+
+/* TABS */
+.tabs {
+display: flex; gap: 4px;
+padding: 14px 20px 0;
+overflow-x: auto; scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+flex-shrink: 0;
+font-family: ‘Syne’, sans-serif; font-size: 13px; font-weight: 600;
+padding: 8px 16px; border-radius: 50px;
+border: 1.5px solid var(–border);
+background: transparent; color: var(–muted);
+cursor: pointer; transition: all 0.2s;
+white-space: nowrap;
+}
+.tab.active { background: var(–ink); color: var(–paper); border-color: var(–ink); }
+
+/* SECTIONS */
+.section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* SECTION HEADER */
+.section-title {
+font-family: ‘Syne’, sans-serif; font-weight: 800; font-size: 26px;
+letter-spacing: -0.8px; margin-bottom: 4px;
+}
+.section-subtitle { color: var(–muted); font-size: 14px; margin-bottom: 24px; }
+
+/* CARDS */
+.card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: var(–radius);
+padding: 20px;
+margin-bottom: 14px;
+box-shadow: var(–shadow);
+}
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.card-title { font-family: ‘Syne’, sans-serif; font-weight: 700; font-size: 15px; }
+.card-meta { font-size: 12px; color: var(–muted); margin-top: 2px; }
+
+/* BUTTONS */
+.btn {
+font-family: ‘Syne’, sans-serif; font-weight: 600; font-size: 14px;
+padding: 11px 20px; border-radius: 50px; border: none;
+cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary { background: var(–ink); color: var(–paper); }
+.btn-primary:active { transform: scale(0.97); }
+.btn-accent { background: var(–accent); color: var(–ink); }
+.btn-ghost { background: transparent; border: 1.5px solid var(–border); color: var(–ink); }
+.btn-danger { background: #FFE8E8; color: #C0392B; }
+.btn-sm { padding: 7px 14px; font-size: 12px; }
+.btn-icon { width: 38px; height: 38px; border-radius: 50%; padding: 0; justify-content: center; font-size: 16px; }
+
+/* TAGS */
+.tag {
+display: inline-block; padding: 4px 11px; border-radius: 50px;
+font-size: 11px; font-family: ‘Syne’, sans-serif; font-weight: 600; letter-spacing: 0.3px;
+}
+.tag-green { background: var(–accent2-light); color: var(–accent2); }
+.tag-gold { background: var(–accent-light); color: var(–accent); }
+.tag-grey { background: var(–cream); color: var(–muted); }
+.tag-red { background: #FFEEEE; color: #C0392B; }
+
+/* INPUTS */
+.input-group { margin-bottom: 14px; }
+.input-label { font-family: ‘Syne’, sans-serif; font-size: 12px; font-weight: 600; color: var(–muted); margin-bottom: 6px; display: block; letter-spacing: 0.5px; text-transform: uppercase; }
+.input {
+width: 100%; padding: 13px 16px; border-radius: var(–radius-sm);
+border: 1.5px solid var(–border); background: var(–cream);
+font-family: ‘DM Sans’, sans-serif; font-size: 15px; color: var(–ink);
+outline: none; transition: border-color 0.2s;
+}
+.input:focus { border-color: var(–accent); }
+textarea.input { resize: vertical; min-height: 90px; }
+select.input { cursor: pointer; }
+
+/* MODAL */
+.modal-overlay {
+display: none; position: fixed; inset: 0; z-index: 200;
+background: rgba(13,13,15,0.5); backdrop-filter: blur(4px);
+align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+background: var(–paper); border-radius: var(–radius) var(–radius) 0 0;
+padding: 28px 20px 40px; width: 100%; max-width: 480px;
+max-height: 90vh; overflow-y: auto;
+animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+.modal-handle { width: 40px; height: 4px; background: var(–border); border-radius: 99px; margin: 0 auto 24px; }
+.modal-title { font-family: ‘Syne’, sans-serif; font-weight: 800; font-size: 20px; margin-bottom: 20px; }
+
+/* ============================
+DEVOIRS
+============================= */
+.matiere-section { margin-bottom: 20px; }
+.matiere-header {
+display: flex; justify-content: space-between; align-items: center;
+padding: 14px 18px; border-radius: var(–radius-sm);
+background: var(–cream); cursor: pointer; margin-bottom: 2px;
+border: 1px solid var(–border);
+}
+.matiere-name { font-family: ‘Syne’, sans-serif; font-weight: 700; font-size: 15px; }
+.matiere-count { font-size: 12px; color: var(–muted); }
+.matiere-chevron { transition: transform 0.2s; font-size: 12px; color: var(–muted); }
+.matiere-section.open .matiere-chevron { transform: rotate(180deg); }
+.devoirs-list { display: none; padding: 6px 0; }
+.matiere-section.open .devoirs-list { display: block; }
+
+.devoir-item {
+display: flex; align-items: flex-start; gap: 12px;
+padding: 14px 18px; background: var(–card); border-radius: var(–radius-sm);
+margin-bottom: 6px; border: 1px solid var(–border);
+transition: all 0.2s;
+}
+.devoir-check {
+width: 22px; height: 22px; border-radius: 50%;
+border: 2px solid var(–border); background: transparent;
+cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+font-size: 11px; transition: all 0.2s; margin-top: 1px;
+}
+.devoir-check.done { background: var(–accent2); border-color: var(–accent2); color: white; }
+.devoir-content { flex: 1; min-width: 0; }
+.devoir-title { font-size: 14px; font-weight: 500; }
+.devoir-title.done { text-decoration: line-through; color: var(–muted); }
+.devoir-date { font-size: 11px; color: var(–muted); margin-top: 3px; }
+.devoir-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+.add-btn {
+display: flex; align-items: center; gap: 10px;
+width: 100%; padding: 14px 18px; border-radius: var(–radius-sm);
+border: 1.5px dashed var(–border); background: transparent;
+font-family: ‘Syne’, sans-serif; font-size: 13px; font-weight: 600; color: var(–muted);
+cursor: pointer; transition: all 0.2s; margin-bottom: 12px;
+}
+.add-btn:active { background: var(–cream); }
+
+/* ============================
+RÉALISATIONS
+============================= */
+.stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.stat-card {
+background: var(–card); border: 1px solid var(–border);
+border-radius: var(–radius-sm); padding: 16px;
+}
+.stat-value { font-family: ‘Syne’, sans-serif; font-weight: 800; font-size: 28px; }
+.stat-label { font-size: 12px; color: var(–muted); margin-top: 2px; }
+
+.chart-wrap {
+background: var(–card); border: 1px solid var(–border);
+border-radius: var(–radius); padding: 20px; margin-bottom: 20px;
+}
+.chart-title { font-family: ‘Syne’, sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: flex; align-items: center; gap: 10px; }
+.bar-label { font-size: 12px; color: var(–muted); width: 70px; flex-shrink: 0; text-align: right; }
+.bar-track { flex: 1; height: 10px; background: var(–cream); border-radius: 99px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 99px; background: var(–accent); transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+.bar-fill.green { background: var(–accent2); }
+.bar-val { font-family: ‘Syne’, sans-serif; font-size: 12px; font-weight: 700; width: 24px; }
+
+.realisation-item {
+display: flex; gap: 14px; padding: 16px 18px;
+background: var(–card); border: 1px solid var(–border);
+border-radius: var(–radius-sm); margin-bottom: 8px;
+}
+.realisation-icon {
+width: 44px; height: 44px; border-radius: 12px;
+display: flex; align-items: center; justify-content: center;
+font-size: 20px; flex-shrink: 0;
+background: var(–accent-light);
+}
+.realisation-body { flex: 1; min-width: 0; }
+.realisation-name { font-family: ‘Syne’, sans-serif; font-weight: 700; font-size: 14px; }
+.realisation-detail { font-size: 12px; color: var(–muted); margin-top: 3px; }
+.realisation-actions { display: flex; gap: 4px; align-items: flex-start; }
+
+/* ============================
+POMODORO
+============================= */
+.pomo-hero {
+background: var(–ink); border-radius: var(–radius);
+padding: 36px 20px; text-align: center; margin-bottom: 20px;
+position: relative; overflow: hidden;
+}
+.pomo-hero::before {
+content: ‘’; position: absolute; width: 260px; height: 260px;
+border-radius: 50%; border: 1px solid rgba(200,169,110,0.15);
+top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
+.pomo-hero::after {
+content: ‘’; position: absolute; width: 190px; height: 190px;
+border-radius: 50%; border: 1px solid rgba(200,169,110,0.1);
+top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
+.pomo-mode-label { font-size: 12px; font-family: ‘Syne’, sans-serif; font-weight: 600; letter-spacing: 2px; color: var(–accent); text-transform: uppercase; margin-bottom: 12px; }
+.pomo-time {
+font-family: ‘Syne’, sans-serif; font-weight: 800; font-size: 72px;
+color: var(–paper); letter-spacing: -3px; position: relative; z-index: 1;
+line-height: 1;
+}
+.pomo-task-label { color: rgba(245,242,236,0.5); font-size: 13px; margin-top: 10px; position: relative; z-index: 1; }
+
+.pomo-progress-bar {
+width: 100%; height: 3px; background: rgba(255,255,255,0.1);
+border-radius: 99px; margin-top: 20px; overflow: hidden; position: relative; z-index: 1;
+}
+.pomo-progress-fill {
+height: 100%; border-radius: 99px; background: var(–accent);
+transition: width 1s linear;
+}
+
+.pomo-controls { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
+.pomo-btn {
+width: 60px; height: 60px; border-radius: 50%; border: none;
+font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+transition: all 0.2s;
+}
+.pomo-btn-main { background: var(–accent); color: var(–ink); width: 70px; height: 70px; font-size: 26px; }
+.pomo-btn-secondary { background: var(–cream); color: var(–ink); }
+.pomo-btn:active { transform: scale(0.93); }
+
+.pomo-sessions {
+display: flex; gap: 8px; justify-content: center; margin-top: 16px; position: relative; z-index: 1;
+}
+.session-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.3s; }
+.session-dot.done { background: var(–accent); }
+.session-dot.current { background: var(–paper); }
+
+.pomo-modes {
+display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px;
+}
+.pomo-mode-btn {
+padding: 12px 8px; border-radius: var(–radius-sm); border: 1.5px solid var(–border);
+background: var(–card); text-align: center; cursor: pointer; transition: all 0.2s;
+}
+.pomo-mode-btn.active { border-color: var(–accent); background: var(–accent-light); }
+.pomo-mode-btn .mode-time { font-family: ‘Syne’, sans-serif; font-weight: 700; font-size: 18px; }
+.pomo-mode-btn .mode-name { font-size: 11px; color: var(–muted); margin-top: 2px; }
+
+.pomo-history-item {
+display: flex; align-items: center; justify-content: space-between;
+padding: 13px 18px; background: var(–card); border: 1px solid var(–border);
+border-radius: var(–radius-sm); margin-bottom: 8px;
+}
+.pomo-history-left { display: flex; align-items: center; gap: 12px; }
+.pomo-history-icon { font-size: 18px; }
+.pomo-history-name { font-size: 14px; font-weight: 500; }
+.pomo-history-date { font-size: 11px; color: var(–muted); }
+.pomo-history-duration { font-family: ‘Syne’, sans-serif; font-weight: 700; font-size: 14px; color: var(–accent); }
+
+/* ============================
+SCORE / ACCUEIL
+============================= */
+.score-hero {
+background: var(–ink); border-radius: var(–radius);
+padding: 28px 24px; margin-bottom: 20px; position: relative; overflow: hidden;
+}
+.score-hero-bg {
+position: absolute; top: -40px; right: -40px;
+width: 160px; height: 160px; border-radius: 50%;
+background: radial-gradient(circle, rgba(200,169,110,0.2), transparent 70%);
+}
+.score-greeting { font-size: 14px; color: rgba(245,242,236,0.5); margin-bottom: 4px; }
+.score-headline { font-family: ‘Syne’, sans-serif; font-weight: 800; font-size: 26px; color: var(–paper); letter-spacing: -0.5px; }
+.score-number {
+font-family: ‘Syne’, sans-serif; font-weight: 800; font-size: 64px;
+color: var(–accent); letter-spacing: -3px; line-height: 1;
+margin: 12px 0 4px;
+}
+.score-number span { font-size: 28px; color: rgba(200,169,110,0.5); }
+.score-sub { font-size: 13px; color: rgba(245,242,236,0.5); }
+
+.score-track { margin-top: 18px; }
+.score-bar-track { height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.score-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(–accent2), var(–accent)); transition: width 1s ease; }
+
+.quick-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.quick-stat {
+background: var(–card); border: 1px solid var(–border);
+border-radius: var(–radius-sm); padding: 14px 12px; text-align: center;
+}
+.quick-stat-val { font-family: ‘Syne’, sans-serif; font-weight: 800; font-size: 22px; }
+.quick-stat-label { font-size: 11px; color: var(–muted); margin-top: 3px; }
+
+.today-section-title { font-family: ‘Syne’, sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 12px; }
+.today-item {
+display: flex; align-items: center; gap: 12px;
+padding: 13px 18px; background: var(–card); border: 1px solid var(–border);
+border-radius: var(–radius-sm); margin-bottom: 8px;
+}
+.today-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.today-text { flex: 1; font-size: 14px; }
+.today-badge { font-family: ‘Syne’, sans-serif; font-size: 11px; font-weight: 600; color: var(–muted); }
+
+.regularity-days { display: flex; gap: 6px; margin-top: 16px; }
+.day-pill {
+flex: 1; padding: 8px 4px; border-radius: 8px; text-align: center;
+font-family: ‘Syne’, sans-serif; font-size: 11px; font-weight: 600;
+border: 1px solid var(–border); background: var(–cream); color: var(–muted);
+cursor: pointer; transition: all 0.2s;
+}
+.day-pill.active { background: var(–accent); color: var(–ink); border-color: var(–accent); }
+.day-pill.green { background: var(–accent2); color: white; border-color: var(–accent2); }
+.day-letter { font-size: 11px; font-weight: 700; }
+.day-num { font-size: 13px; margin-top: 3px; }
+
+/* ============================
+BOTTOM NAV
+============================= */
+.bottom-nav {
+position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+background: rgba(245,242,236,0.95); backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border-top: 1px solid var(–border);
+display: flex; padding: 8px 0 20px;
+}
+.nav-item {
+flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+cursor: pointer; padding: 6px;
+font-family: ‘Syne’, sans-serif; font-size: 10px; font-weight: 600;
+color: var(–muted); transition: color 0.2s;
+}
+.nav-item.active { color: var(–ink); }
+.nav-icon {
+width: 36px; height: 36px; border-radius: 12px;
+display: flex; align-items: center; justify-content: center;
+font-size: 18px; transition: all 0.2s;
+}
+.nav-item.active .nav-icon { background: var(–ink); }
+.nav-item.active .nav-icon span { filter: invert(1) brightness(5); }
+
+/* SCORE MODAL */
+.score-modal-ring {
+width: 140px; height: 140px; margin: 0 auto 24px;
+position: relative;
+}
+.ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(–cream); stroke-width: 10; }
+.ring-fill { fill: none; stroke: var(–accent); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+.ring-val {
+position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+font-family: ‘Syne’, sans-serif; font-weight: 800; font-size: 36px; text-align: center;
+}
+.ring-val small { display: block; font-size: 14px; color: var(–muted); font-weight: 400; margin-top: -4px; }
+
+.score-criteria { display: flex; flex-direction: column; gap: 10px; }
+.criteria-row { display: flex; align-items: center; gap: 12px; }
+.criteria-label { flex: 1; font-size: 14px; }
+.criteria-stars { display: flex; gap: 3px; }
+.star { font-size: 14px; color: var(–cream); }
+.star.on { color: var(–accent); }
+
+.empty-state {
+text-align: center; padding: 40px 20px; color: var(–muted);
+}
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+.divider { height: 1px; background: var(–border); margin: 4px 0 16px; }
+
+/* Notification toast */
+.toast {
+position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px);
+background: var(–ink); color: var(–paper); padding: 12px 20px;
+border-radius: 50px; font-family: ‘Syne’, sans-serif; font-size: 13px; font-weight: 600;
+z-index: 300; opacity: 0; transition: all 0.3s; white-space: nowrap;
+pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">Study<span>OS</span></div>
+    <div class="score-badge" onclick="openScoreModal()">
+      <div class="score-dot"></div>
+      <span id="headerScore">— /10</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('home',this)">🏠 Accueil</button>
+    <button class="tab" onclick="switchTab('devoirs',this)">📚 Devoirs</button>
+    <button class="tab" onclick="switchTab('realisations',this)">📊 Réalisations</button>
+    <button class="tab" onclick="switchTab('pomodoro',this)">⏱ Pomodoro</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+
+<div class="toast" id="toast"></div>
+
+<!-- ===================== HOME ===================== -->
+
+<div id="section-home" class="section active">
+  <div class="score-hero">
+    <div class="score-hero-bg"></div>
+    <div class="score-greeting">Bon travail 👋</div>
+    <div class="score-headline">Score de régularité</div>
+    <div class="score-number" id="heroScore">—<span>/10</span></div>
+    <div class="score-sub" id="heroScoreSub">Complète des devoirs et sessions pour améliorer ton score</div>
+    <div class="score-track">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12px;color:rgba(245,242,236,0.5)">Progression</span>
+        <span style="font-size:12px;color:var(--accent);font-family:'Syne',sans-serif;font-weight:700" id="scorePercent">0%</span>
+      </div>
+      <div class="score-bar-track">
+        <div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quick-stats">
+    <div class="quick-stat">
+      <div class="quick-stat-val" id="qsDevoirs">0</div>
+      <div class="quick-stat-label">Devoirs</div>
+    </div>
+    <div class="quick-stat">
+      <div class="quick-stat-val" id="qsSessions">0</div>
+      <div class="quick-stat-label">Sessions</div>
+    </div>
+    <div class="quick-stat">
+      <div class="quick-stat-val" id="qsJours">0</div>
+      <div class="quick-stat-label">Jours actifs</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="margin-bottom:12px">
+      <div>
+        <div class="card-title">Régularité hebdo</div>
+        <div class="card-meta">7 derniers jours</div>
+      </div>
+    </div>
+    <div class="regularity-days" id="regularityDays"></div>
+  </div>
+
+  <div class="today-section-title">À faire aujourd'hui</div>
+  <div id="todayList"></div>
+</div>
+
+<!-- ===================== DEVOIRS ===================== -->
+
+<div id="section-devoirs" class="section">
+  <div class="section-title">Devoirs</div>
+  <div class="section-subtitle">Organisés par matière</div>
+
+  <button class="add-btn" onclick="openMatiereModal()">
+    <span>＋</span> Nouvelle matière
+  </button>
+  <button class="add-btn" onclick="openDevoirModal()">
+    <span>＋</span> Nouveau devoir
+  </button>
+
+  <div id="matieresList"></div>
+</div>
+
+<!-- ===================== RÉALISATIONS ===================== -->
+
+<div id="section-realisations" class="section">
+  <div class="section-title">Réalisations</div>
+  <div class="section-subtitle">Tes méthodes de révision</div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value" id="totalRealisations">0</div>
+      <div class="stat-label">Réalisations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="totalHeures">0h</div>
+      <div class="stat-label">Total révisé</div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Répartition des méthodes</div>
+    <div class="bar-chart" id="methodsChart"></div>
+  </div>
+
+  <button class="add-btn" onclick="openRealisationModal()">
+    <span>＋</span> Nouvelle réalisation
+  </button>
+  <div id="realisationsList"></div>
+</div>
+
+<!-- ===================== POMODORO ===================== -->
+
+<div id="section-pomodoro" class="section">
+  <div class="section-title">Pomodoro</div>
+  <div class="section-subtitle">Focus & productivité</div>
+
+  <div class="pomo-modes">
+    <div class="pomo-mode-btn active" data-minutes="25" onclick="selectPomoMode(this,25,'Focus')">
+      <div class="mode-time">25'</div>
+      <div class="mode-name">Focus</div>
+    </div>
+    <div class="pomo-mode-btn" data-minutes="5" onclick="selectPomoMode(this,5,'Pause courte')">
+      <div class="mode-time">5'</div>
+      <div class="mode-name">Pause courte</div>
+    </div>
+    <div class="pomo-mode-btn" data-minutes="15" onclick="selectPomoMode(this,15,'Pause longue')">
+      <div class="mode-time">15'</div>
+      <div class="mode-name">Pause longue</div>
+    </div>
+  </div>
+
+  <div class="pomo-hero">
+    <div class="pomo-mode-label" id="pomoModeLabel">Focus</div>
+    <div class="pomo-time" id="pomoTime">25:00</div>
+    <div class="pomo-task-label" id="pomoTaskLabel">Aucune tâche sélectionnée</div>
+    <div class="pomo-sessions" id="pomoSessions"></div>
+    <div class="pomo-progress-bar">
+      <div class="pomo-progress-fill" id="pomoProgressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="pomo-controls">
+    <button class="pomo-btn pomo-btn-secondary" onclick="resetPomo()" title="Réinitialiser">↺</button>
+    <button class="pomo-btn pomo-btn-main" id="pomoPlayBtn" onclick="togglePomo()">▶</button>
+    <button class="pomo-btn pomo-btn-secondary" onclick="openPomoTaskModal()" title="Choisir tâche">📋</button>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="card-header">
+      <div class="card-title">Paramètres</div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Durée focus (min)</label>
+      <input type="number" class="input" id="customFocus" value="25" min="1" max="120" onchange="updateCustomMode()">
+    </div>
+    <div class="input-group" style="margin-bottom:0">
+      <label class="input-label">Objectif sessions / jour</label>
+      <input type="number" class="input" id="pomoGoal" value="4" min="1" max="20" onchange="savePomoGoal()">
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;margin-top:20px">
+    <div class="today-section-title" style="margin-bottom:0">Historique</div>
+    <button class="btn btn-ghost btn-sm" onclick="clearPomoHistory()">Effacer</button>
+  </div>
+  <div id="pomoHistory"></div>
+</div>
+
+<!-- ====== MODALS ====== -->
+
+<!-- Modal Score -->
+
+<div class="modal-overlay" id="scoreModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Score de régularité</div>
+    <div class="score-modal-ring">
+      <svg class="ring-svg" viewBox="0 0 120 120">
+        <circle class="ring-bg" cx="60" cy="60" r="52"/>
+        <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+      </svg>
+      <div class="ring-val" id="ringVal">—<small>/ 10</small></div>
+    </div>
+    <div class="score-criteria" id="scoreCriteria"></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:24px;justify-content:center" onclick="closeModal('scoreModal')">Fermer</button>
+  </div>
+</div>
+
+<!-- Modal Matière -->
+
+<div class="modal-overlay" id="matiereModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="matiereModalTitle">Nouvelle matière</div>
+    <div class="input-group">
+      <label class="input-label">Nom de la matière</label>
+      <input type="text" class="input" id="matiereNameInput" placeholder="Ex: Mathématiques">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Emoji</label>
+      <input type="text" class="input" id="matiereEmojiInput" placeholder="📐" maxlength="2">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeModal('matiereModal')">Annuler</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="saveMatiere()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Devoir -->
+
+<div class="modal-overlay" id="devoirModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="devoirModalTitle">Nouveau devoir</div>
+    <div class="input-group">
+      <label class="input-label">Matière</label>
+      <select class="input" id="devoirMatiere"></select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Description</label>
+      <textarea class="input" id="devoirDesc" placeholder="Ex: Exercices p.42 n°3 à 8"></textarea>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Date limite</label>
+      <input type="date" class="input" id="devoirDate">
+    </div>
+    <div class="input-group" style="margin-bottom:0">
+      <label class="input-label">Priorité</label>
+      <select class="input" id="devoirPriority">
+        <option value="haute">🔴 Haute</option>
+        <option value="moyenne" selected>🟡 Moyenne</option>
+        <option value="basse">🟢 Basse</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeModal('devoirModal')">Annuler</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="saveDevoir()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Réalisation -->
+
+<div class="modal-overlay" id="realisationModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="realisationModalTitle">Nouvelle réalisation</div>
+    <div class="input-group">
+      <label class="input-label">Méthode</label>
+      <select class="input" id="realisationMethode">
+        <option>📖 Lecture active</option>
+        <option>✍️ Fiches de révision</option>
+        <option>🧠 Mind mapping</option>
+        <option>🔁 Répétition espacée</option>
+        <option>📝 Exercices pratiques</option>
+        <option>🎧 Podcasts / vidéos</option>
+        <option>👥 Groupe de travail</option>
+        <option>💻 Pomodoro</option>
+        <option>Autre</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Matière</label>
+      <input type="text" class="input" id="realisationMatiere" placeholder="Ex: Histoire">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Durée (minutes)</label>
+      <input type="number" class="input" id="realisationDuree" placeholder="45" min="1">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Note (optionnel)</label>
+      <textarea class="input" id="realisationNote" placeholder="Commentaires..."></textarea>
+    </div>
+    <div class="input-group" style="margin-bottom:0">
+      <label class="input-label">Efficacité</label>
+      <select class="input" id="realisationEfficacite">
+        <option value="3">⭐⭐⭐ Excellent</option>
+        <option value="2" selected>⭐⭐ Bien</option>
+        <option value="1">⭐ Moyen</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeModal('realisationModal')">Annuler</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="saveRealisation()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Task Pomo -->
+
+<div class="modal-overlay" id="pomoTaskModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Choisir une tâche</div>
+    <div id="pomoTaskList"></div>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="closeModal('pomoTaskModal')">Annuler</button>
+  </div>
+</div>
+
+<script>
+// ========== DATA STORE ==========
+let data = JSON.parse(localStorage.getItem('studyos_v2') || '{}');
+data.matieres = data.matieres || [];
+data.devoirs = data.devoirs || [];
+data.realisations = data.realisations || [];
+data.pomoHistory = data.pomoHistory || [];
+data.activeDays = data.activeDays || {};
+data.pomoGoal = data.pomoGoal || 4;
+
+let editingId = null;
+let editingType = null;
+
+function save() { localStorage.setItem('studyos_v2', JSON.stringify(data)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+// ========== TABS ==========
+function switchTab(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  el.classList.add('active');
+  renderAll();
+}
+
+// ========== MODAL ==========
+function closeModal(id) { document.getElementById(id).classList.remove('open'); editingId = null; editingType = null; }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ========== TOAST ==========
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ========== SCORE ==========
+function calcScore() {
+  let score = 0, criteria = [];
+  const devoirs = data.devoirs;
+  const done = devoirs.filter(d => d.done);
+  const total = devoirs.length;
+  const doneRatio = total > 0 ? done.length / total : 0;
+  const donePoints = Math.round(doneRatio * 3);
+  criteria.push({ label: 'Devoirs complétés', points: donePoints, max: 3 });
+  score += donePoints;
+
+  const sessions = data.pomoHistory.filter(h => h.type === 'focus').length;
+  const sessionPoints = Math.min(sessions, 4) > 0 ? Math.min(Math.round(sessions / 2), 2) : 0;
+  criteria.push({ label: 'Sessions Pomodoro', points: Math.min(sessionPoints, 2), max: 2 });
+  score += Math.min(sessionPoints, 2);
+
+  const realisations = data.realisations.length;
+  const realPoints = Math.min(realisations, 3);
+  criteria.push({ label: 'Réalisations enregistrées', points: realPoints, max: 3 });
+  score += realPoints;
+
+  const activeDayCount = Object.values(data.activeDays).filter(Boolean).length;
+  const activePoints = Math.min(Math.round(activeDayCount / 3), 2);
+  criteria.push({ label: 'Jours actifs', points: activePoints, max: 2 });
+  score += activePoints;
+
+  return { score: Math.min(score, 10), criteria };
+}
+
+function renderScore() {
+  const { score, criteria } = calcScore();
+  const pct = score * 10;
+  document.getElementById('heroScore').innerHTML = `${score}<span>/10</span>`;
+  document.getElementById('headerScore').textContent = `${score}/10`;
+  document.getElementById('scorePercent').textContent = pct + '%';
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+
+  const subs = ['Continue comme ça! 💪', 'Bon travail, améliore encore!', 'Excellent rythme!', 'Parfait! 🏆'];
+  document.getElementById('heroScoreSub').textContent = score >= 8 ? subs[3] : score >= 5 ? subs[2] : score >= 3 ? subs[1] : subs[0];
+
+  const offset = 326.7 - (326.7 * score / 10);
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+  document.getElementById('ringVal').innerHTML = `${score}<small>/ 10</small>`;
+
+  const criteriaEl = document.getElementById('scoreCriteria');
+  criteriaEl.innerHTML = criteria.map(c => `
+    <div class="criteria-row">
+      <div class="criteria-label">${c.label}</div>
+      <div class="criteria-stars">
+        ${Array.from({length: c.max}, (_, i) => `<span class="star ${i < c.points ? 'on' : ''}">★</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function openScoreModal() { renderScore(); openModal('scoreModal'); }
+
+// ========== REGULARITY ==========
+function renderRegularity() {
+  const days = ['L','M','M','J','V','S','D'];
+  const now = new Date();
+  const el = document.getElementById('regularityDays');
+  el.innerHTML = '';
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now); d.setDate(d.getDate() - i);
+    const key = d.toDateString();
+    const isToday = i === 0;
+    const isActive = data.activeDays[key];
+    const pill = document.createElement('div');
+    pill.className = 'day-pill' + (isToday ? ' active' : isActive ? ' green' : '');
+    pill.innerHTML = `<div class="day-letter">${days[d.getDay() === 0 ? 6 : d.getDay() - 1]}</div><div class="day-num">${d.getDate()}</div>`;
+    el.appendChild(pill);
+  }
+}
+
+function markTodayActive() {
+  data.activeDays[new Date().toDateString()] = true;
+  save();
+}
+
+// ========== HOME ==========
+function renderHome() {
+  renderScore();
+  renderRegularity();
+
+  // Quick stats
+  const activeDayCount = Object.values(data.activeDays).filter(Boolean).length;
+  document.getElementById('qsDevoirs').textContent = data.devoirs.filter(d => d.done).length + '/' + data.devoirs.length;
+  document.getElementById('qsSessions').textContent = data.pomoHistory.filter(h => h.type === 'focus').length;
+  document.getElementById('qsJours').textContent = activeDayCount;
+
+  // Today list
+  const today = new Date().toDateString();
+  const upcoming = data.devoirs.filter(d => !d.done).slice(0, 5);
+  const todayEl = document.getElementById('todayList');
+  if (upcoming.length === 0) {
+    todayEl.innerHTML = `<div class="empty-state"><div class="empty-icon">✅</div><p>Tout est à jour !</p></div>`;
+  } else {
+    todayEl.innerHTML = upcoming.map(d => {
+      const colors = { haute: '#C0392B', moyenne: '#C8A96E', basse: '#7C9E87' };
+      const matiere = data.matieres.find(m => m.id === d.matiereId);
+      return `<div class="today-item">
+        <div class="today-dot" style="background:${colors[d.priority] || '#C8A96E'}"></div>
+        <div class="today-text">${d.desc.slice(0, 50)}${d.desc.length > 50 ? '…' : ''}</div>
+        <div class="today-badge">${matiere ? matiere.emoji + ' ' + matiere.name : ''}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ========== DEVOIRS ==========
+function openMatiereModal(id = null) {
+  editingId = id; editingType = 'matiere';
+  const m = id ? data.matieres.find(x => x.id === id) : null;
+  document.getElementById('matiereModalTitle').textContent = id ? 'Modifier la matière' : 'Nouvelle matière';
+  document.getElementById('matiereNameInput').value = m ? m.name : '';
+  document.getElementById('matiereEmojiInput').value = m ? m.emoji : '';
+  openModal('matiereModal');
+}
+
+function saveMatiere() {
+  const name = document.getElementById('matiereNameInput').value.trim();
+  const emoji = document.getElementById('matiereEmojiInput').value.trim() || '📚';
+  if (!name) return showToast('Saisis un nom');
+  if (editingId) {
+    const m = data.matieres.find(x => x.id === editingId);
+    m.name = name; m.emoji = emoji;
+  } else {
+    data.matieres.push({ id: uid(), name, emoji });
+  }
+  save(); closeModal('matiereModal'); renderDevoirs(); showToast('Matière enregistrée ✓');
+}
+
+function deleteMatiere(id) {
+  if (!confirm('Supprimer cette matière et ses devoirs ?')) return;
+  data.matieres = data.matieres.filter(m => m.id !== id);
+  data.devoirs = data.devoirs.filter(d => d.matiereId !== id);
+  save(); renderDevoirs();
+}
+
+function openDevoirModal(id = null) {
+  editingId = id; editingType = 'devoir';
+  const d = id ? data.devoirs.find(x => x.id === id) : null;
+  document.getElementById('devoirModalTitle').textContent = id ? 'Modifier le devoir' : 'Nouveau devoir';
+  // fill matieres
+  const sel = document.getElementById('devoirMatiere');
+  sel.innerHTML = data.matieres.length === 0
+    ? '<option value="">— Ajoute d\'abord une matière</option>'
+    : data.matieres.map(m => `<option value="${m.id}" ${d && d.matiereId === m.id ? 'selected' : ''}>${m.emoji} ${m.name}</option>`).join('');
+  document.getElementById('devoirDesc').value = d ? d.desc : '';
+  document.getElementById('devoirDate').value = d ? d.date : '';
+  document.getElementById('devoirPriority').value = d ? d.priority : 'moyenne';
+  openModal('devoirModal');
+}
+
+function saveDevoir() {
+  const matiereId = document.getElementById('devoirMatiere').value;
+  const desc = document.getElementById('devoirDesc').value.trim();
+  const date = document.getElementById('devoirDate').value;
+  const priority = document.getElementById('devoirPriority').value;
+  if (!desc) return showToast('Décris le devoir');
+  if (editingId) {
+    const d = data.devoirs.find(x => x.id === editingId);
+    Object.assign(d, { matiereId, desc, date, priority });
+  } else {
+    data.devoirs.push({ id: uid(), matiereId, desc, date, priority, done: false, createdAt: Date.now() });
+  }
+  save(); closeModal('devoirModal'); renderDevoirs(); showToast('Devoir enregistré ✓');
+}
+
+function toggleDevoir(id) {
+  const d = data.devoirs.find(x => x.id === id);
+  d.done = !d.done;
+  if (d.done) markTodayActive();
+  save(); renderDevoirs(); renderHome();
+}
+
+function deleteDevoir(id) {
+  data.devoirs = data.devoirs.filter(x => x.id !== id);
+  save(); renderDevoirs();
+}
+
+function renderDevoirs() {
+  const el = document.getElementById('matieresList');
+  if (data.matieres.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📚</div><p>Ajoute une matière pour commencer</p></div>`;
+    return;
+  }
+  el.innerHTML = data.matieres.map(m => {
+    const mDevoirs = data.devoirs.filter(d => d.matiereId === m.id);
+    const pending = mDevoirs.filter(d => !d.done).length;
+    return `<div class="matiere-section" id="mat_${m.id}">
+      <div class="matiere-header" onclick="toggleMatiere('${m.id}')">
+        <div>
+          <span style="font-size:18px;margin-right:8px">${m.emoji}</span>
+          <span class="matiere-name">${m.name}</span>
+          <span class="matiere-count" style="margin-left:8px">${pending} restant${pending !== 1 ? 's' : ''}</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openMatiereModal('${m.id}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteMatiere('${m.id}')">🗑</button>
+          <span class="matiere-chevron">▼</span>
+        </div>
+      </div>
+      <div class="devoirs-list">
+        ${mDevoirs.length === 0 ? '<div style="padding:12px 18px;color:var(--muted);font-size:13px">Aucun devoir</div>' :
+          mDevoirs.map(d => {
+            const priorityTag = { haute: 'tag-red', moyenne: 'tag-gold', basse: 'tag-green' }[d.priority];
+            return `<div class="devoir-item">
+              <div class="devoir-check ${d.done ? 'done' : ''}" onclick="toggleDevoir('${d.id}')">${d.done ? '✓' : ''}</div>
+              <div class="devoir-content">
+                <div class="devoir-title ${d.done ? 'done' : ''}">${d.desc}</div>
+                <div class="devoir-date">
+                  ${d.date ? '📅 ' + new Date(d.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}) + ' · ' : ''}
+                  <span class="tag ${priorityTag}" style="padding:2px 8px">${d.priority}</span>
+                </div>
+              </div>
+              <div class="devoir-actions">
+                <button class="btn btn-ghost btn-icon btn-sm" onclick="openDevoirModal('${d.id}')">✏️</button>
+                <button class="btn btn-danger btn-icon btn-sm" onclick="deleteDevoir('${d.id}')">🗑</button>
+              </div>
+            </div>`;
+          }).join('')}
+        <button class="add-btn" style="margin-top:6px" onclick="openDevoirModal();document.getElementById('devoirMatiere').value='${m.id}'">
+          <span>＋</span> Ajouter un devoir
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleMatiere(id) {
+  document.getElementById('mat_' + id).classList.toggle('open');
+}
+
+// ========== RÉALISATIONS ==========
+function openRealisationModal(id = null) {
+  editingId = id; editingType = 'realisation';
+  const r = id ? data.realisations.find(x => x.id === id) : null;
+  document.getElementById('realisationModalTitle').textContent = id ? 'Modifier' : 'Nouvelle réalisation';
+  document.getElementById('realisationMethode').value = r ? r.methode : document.getElementById('realisationMethode').options[0].value;
+  document.getElementById('realisationMatiere').value = r ? r.matiere : '';
+  document.getElementById('realisationDuree').value = r ? r.duree : '';
+  document.getElementById('realisationNote').value = r ? r.note : '';
+  document.getElementById('realisationEfficacite').value = r ? r.efficacite : '2';
+  openModal('realisationModal');
+}
+
+function saveRealisation() {
+  const methode = document.getElementById('realisationMethode').value;
+  const matiere = document.getElementById('realisationMatiere').value.trim();
+  const duree = parseInt(document.getElementById('realisationDuree').value) || 0;
+  const note = document.getElementById('realisationNote').value.trim();
+  const efficacite = parseInt(document.getElementById('realisationEfficacite').value);
+  if (!methode) return showToast('Choisis une méthode');
+  if (editingId) {
+    const r = data.realisations.find(x => x.id === editingId);
+    Object.assign(r, { methode, matiere, duree, note, efficacite });
+  } else {
+    data.realisations.push({ id: uid(), methode, matiere, duree, note, efficacite, date: new Date().toISOString() });
+  }
+  markTodayActive();
+  save(); closeModal('realisationModal'); renderRealisations(); showToast('Réalisation ajoutée ✓');
+}
+
+function deleteRealisation(id) {
+  data.realisations = data.realisations.filter(x => x.id !== id);
+  save(); renderRealisations();
+}
+
+function renderRealisations() {
+  document.getElementById('totalRealisations').textContent = data.realisations.length;
+  const totalMin = data.realisations.reduce((a, r) => a + (r.duree || 0), 0);
+  document.getElementById('totalHeures').textContent = totalMin >= 60 ? Math.round(totalMin / 60) + 'h' : totalMin + 'min';
+
+  // Bar chart
+  const methodCounts = {};
+  data.realisations.forEach(r => {
+    const key = r.methode.replace(/^[\u{1F000}-\u{1FFFF}\u{2000}-\u{2BFF}]\s*/u, '').slice(0, 20);
+    methodCounts[key] = (methodCounts[key] || 0) + 1;
+  });
+  const maxCount = Math.max(...Object.values(methodCounts), 1);
+  const chartEl = document.getElementById('methodsChart');
+  if (Object.keys(methodCounts).length === 0) {
+    chartEl.innerHTML = '<div style="color:var(--muted);font-size:13px">Aucune donnée</div>';
+  } else {
+    const sorted = Object.entries(methodCounts).sort((a,b) => b[1]-a[1]);
+    chartEl.innerHTML = sorted.slice(0, 6).map(([k, v], i) => `
+      <div class="bar-row">
+        <div class="bar-label">${k}</div>
+        <div class="bar-track"><div class="bar-fill ${i % 2 === 1 ? 'green' : ''}" style="width:${Math.round(v/maxCount*100)}%"></div></div>
+        <div class="bar-val">${v}</div>
+      </div>`).join('');
+  }
+
+  // List
+  const listEl = document.getElementById('realisationsList');
+  if (data.realisations.length === 0) {
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><p>Aucune réalisation encore</p></div>`;
+    return;
+  }
+  const effLabels = ['', '⭐ Moyen', '⭐⭐ Bien', '⭐⭐⭐ Excellent'];
+  listEl.innerHTML = [...data.realisations].reverse().map(r => `
+    <div class="realisation-item">
+      <div class="realisation-icon">${r.methode.match(/^[\u{1F000}-\u{1FFFF}\u{2000}-\u{2BFF}]/u)?.[0] || '📝'}</div>
+      <div class="realisation-body">
+        <div class="realisation-name">${r.methode.replace(/^[\u{1F000}-\u{1FFFF}\u{2000}-\u{2BFF}]\s*/u, '')}</div>
+        <div class="realisation-detail">
+          ${r.matiere ? r.matiere + ' · ' : ''}${r.duree ? r.duree + 'min · ' : ''}${effLabels[r.efficacite] || ''}
+          ${r.note ? '<br><span style="color:var(--muted)">' + r.note + '</span>' : ''}
+        </div>
+      </div>
+      <div class="realisation-actions">
+        <button class="btn btn-ghost btn-icon btn-sm" onclick="openRealisationModal('${r.id}')">✏️</button>
+        <button class="btn btn-danger btn-icon btn-sm" onclick="deleteRealisation('${r.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+// ========== POMODORO ==========
+let pomoTimer = null;
+let pomoSecondsLeft = 25 * 60;
+let pomoTotalSeconds = 25 * 60;
+let pomoRunning = false;
+let pomoCurrentMode = 'Focus';
+let pomoCurrentMinutes = 25;
+let pomoCurrentTask = null;
+let pomoSessionsDone = 0;
+
+function selectPomoMode(el, minutes, name) {
+  document.querySelectorAll('.pomo-mode-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  pomoCurrentMinutes = minutes;
+  pomoCurrentMode = name;
+  if (!pomoRunning) resetPomo();
+}
+
+function updateCustomMode() {
+  const val = parseInt(document.getElementById('customFocus').value) || 25;
+  document.querySelector('.pomo-mode-btn').querySelector('.mode-time').textContent = val + "'";
+  if (document.querySelector('.pomo-mode-btn.active') === document.querySelector('.pomo-mode-btn')) {
+    pomoCurrentMinutes = val; pomoCurrentMode = 'Focus';
+    if (!pomoRunning) resetPomo();
+  }
+}
+
+function savePomoGoal() {
+  data.pomoGoal = parseInt(document.getElementById('pomoGoal').value) || 4;
+  save();
+}
+
+function togglePomo() {
+  if (pomoRunning) {
+    clearInterval(pomoTimer); pomoRunning = false;
+    document.getElementById('pomoPlayBtn').textContent = '▶';
+  } else {
+    markTodayActive();
+    pomoRunning = true;
+    document.getElementById('pomoPlayBtn').textContent = '⏸';
+    pomoTimer = setInterval(() => {
+      pomoSecondsLeft--;
+      if (pomoSecondsLeft <= 0) {
+        clearInterval(pomoTimer); pomoRunning = false;
+        document.getElementById('pomoPlayBtn').textContent = '▶';
+        pomoSessionsDone++;
+        data.pomoHistory.push({
+          id: uid(), type: pomoCurrentMode.toLowerCase().includes('pause') ? 'pause' : 'focus',
+          mode: pomoCurrentMode, duration: pomoCurrentMinutes,
+          task: pomoCurrentTask, date: new Date().toISOString()
+        });
+        markTodayActive(); save();
+        showToast(pomoCurrentMode + ' terminé ! 🎉');
+        renderPomoHistory();
+        renderPomoSessions();
+        resetPomo();
+        return;
+      }
+      renderPomoDisplay();
+    }, 1000);
+  }
+}
+
+function resetPomo() {
+  clearInterval(pomoTimer); pomoRunning = false;
+  pomoSecondsLeft = pomoCurrentMinutes * 60;
+  pomoTotalSeconds = pomoCurrentMinutes * 60;
+  document.getElementById('pomoPlayBtn').textContent = '▶';
+  renderPomoDisplay();
+}
+
+function renderPomoDisplay() {
+  const m = Math.floor(pomoSecondsLeft / 60).toString().padStart(2, '0');
+  const s = (pomoSecondsLeft % 60).toString().padStart(2, '0');
+  document.getElementById('pomoTime').textContent = m + ':' + s;
+  document.getElementById('pomoModeLabel').textContent = pomoCurrentMode;
+  document.getElementById('pomoTaskLabel').textContent = pomoCurrentTask || 'Aucune tâche sélectionnée';
+  const pct = (1 - pomoSecondsLeft / pomoTotalSeconds) * 100;
+  document.getElementById('pomoProgressFill').style.width = pct + '%';
+}
+
+function renderPomoSessions() {
+  const goal = data.pomoGoal || 4;
+  const el = document.getElementById('pomoSessions');
+  el.innerHTML = Array.from({length: goal}, (_, i) => `
+    <div class="session-dot ${i < pomoSessionsDone ? 'done' : i === pomoSessionsDone ? 'current' : ''}"></div>`).join('');
+}
+
+function renderPomoHistory() {
+  const el = document.getElementById('pomoHistory');
+  if (data.pomoHistory.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">⏱</div><p>Lance ta première session !</p></div>`;
+    return;
+  }
+  const icons = { focus: '🎯', pause: '☕' };
+  el.innerHTML = [...data.pomoHistory].reverse().slice(0, 20).map(h => `
+    <div class="pomo-history-item">
+      <div class="pomo-history-left">
+        <div class="pomo-history-icon">${icons[h.type] || '⏱'}</div>
+        <div>
+          <div class="pomo-history-name">${h.mode}${h.task ? ' · ' + h.task : ''}</div>
+          <div class="pomo-history-date">${new Date(h.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+        </div>
+      </div>
+      <div class="pomo-history-duration">${h.duration}'</div>
+    </div>`).join('');
+}
+
+function clearPomoHistory() {
+  if (!confirm('Effacer l\'historique ?')) return;
+  data.pomoHistory = []; save(); renderPomoHistory(); pomoSessionsDone = 0; renderPomoSessions();
+}
+
+function openPomoTaskModal() {
+  const listEl = document.getElementById('pomoTaskList');
+  const pending = data.devoirs.filter(d => !d.done);
+  if (pending.length === 0) {
+    listEl.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:8px 0">Aucun devoir en attente</div>';
+  } else {
+    listEl.innerHTML = pending.map(d => {
+      const m = data.matieres.find(x => x.id === d.matiereId);
+      return `<div class="today-item" style="cursor:pointer" onclick="selectPomoTask('${d.id.replace(/'/g,'\\\'')}',' ${d.desc.slice(0,30)}')">
+        <div style="font-size:20px">${m ? m.emoji : '📝'}</div>
+        <div style="flex:1"><div style="font-size:14px">${d.desc.slice(0,50)}</div>
+        <div style="font-size:11px;color:var(--muted)">${m ? m.name : ''}</div></div>
+      </div>`;
+    }).join('');
+  }
+  openModal('pomoTaskModal');
+}
+
+function selectPomoTask(id, name) {
+  pomoCurrentTask = name.trim();
+  closeModal('pomoTaskModal');
+  renderPomoDisplay();
+}
+
+// ========== RENDER ALL ==========
+function renderAll() {
+  renderHome();
+  renderDevoirs();
+  renderRealisations();
+  renderPomoDisplay();
+  renderPomoSessions();
+  renderPomoHistory();
+}
+
+// Init
+renderAll();
+document.getElementById('pomoGoal').value = data.pomoGoal || 4;
+</script>
+
+</body>
+</html>
