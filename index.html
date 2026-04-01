@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>GRISCH</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+html,body{background:#fff;overflow-x:hidden;font-family:'Helvetica Neue',Arial,sans-serif;}
+input,select,button,textarea{font-family:inherit;}
+input::placeholder,textarea::placeholder{color:#C4C4C4;}
+::-webkit-scrollbar{display:none;}
+select{-webkit-appearance:none;appearance:none;}
+input[type=checkbox]{accent-color:#0A0A0A;}
+button{transition:opacity .1s,transform .08s;cursor:pointer;}
+button:active:not(:disabled){opacity:.6!important;transform:scale(.97)!important;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes pulse{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+.skel{background:linear-gradient(90deg,#F1F1F1 0%,#E8E8E8 50%,#F1F1F1 100%);background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;}
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);animation:fadeIn .18s ease-out;z-index:499;}
+.sheet-panel{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ECECEC;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,18px);box-shadow:0 -12px 48px rgba(0,0,0,0.12);animation:sheetUp .24s cubic-bezier(.32,.72,0,1);z-index:500;max-height:92dvh;}
+.sheet-panel.full{max-height:96dvh;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238A8A8A' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
+.fb{width:100%;background:#F8F8F8;border:1px solid #ECECEC;padding:12px 14px;color:#0A0A0A;font-size:14px;outline:none;box-sizing:border-box;font-family:inherit;-webkit-appearance:none;appearance:none;border-radius:4px;transition:border-color .15s;}
+.fb:focus{border-color:#B8B8B8;}
+.bp{background:#0A0A0A;color:#fff;border:none;border-radius:4px;padding:13px 20px;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;}
+.bp:disabled{opacity:.38;cursor:not-allowed;}
+.bo{background:#fff;color:#0A0A0A;border:1px solid #D6D6D6;border-radius:4px;padding:12px 18px;font-size:13px;font-weight:600;letter-spacing:.03em;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;}
+.bs.bp{padding:8px 14px;font-size:11px;}
+.bs.bo{padding:7px 13px;font-size:11px;}
+.bd{background:#fff;color:#7F1D1D;border:1px solid rgba(127,29,29,.12);border-radius:4px;padding:12px 18px;font-size:13px;font-weight:600;letter-spacing:.03em;cursor:pointer;font-family:inherit;width:100%;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:10px;}
+.tu button{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;padding:9px 0;font-size:10px;cursor:pointer;font-family:inherit;font-weight:800;letter-spacing:.12em;color:#8A8A8A;transition:color .12s;}
+.tu button.on{border-bottom-color:#0A0A0A;color:#0A0A0A;}
+.ci{flex-shrink:0;width:148px;background:none;border:1px solid #ECECEC;padding:0;cursor:pointer;text-align:left;overflow:hidden;}
+.wc{border:1.5px solid #ECECEC;overflow:hidden;transition:opacity .2s,border-color .2s;}
+.wc.bgt{border-color:#86EFAC;opacity:.65;}
+.rc{border:1px solid #ECECEC;overflow:hidden;}
+.oc{border:1px solid #ECECEC;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;}
+.sb{flex:1;height:4px;border:none;cursor:pointer;background:#E8E8E8;transition:background .08s;border-radius:1px;}
+.sb.on{background:#0A0A0A;}
+.cp{flex-shrink:0;border:1px solid #ECECEC;padding:5px 11px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:inherit;white-space:nowrap;background:#F8F8F8;color:#5A5A5A;}
+.cp.on{background:#0A0A0A;border-color:#0A0A0A;color:#fff;}
+.oib{width:100%;background:#fff;border:none;border-bottom:1px solid #ECECEC;padding:9px 11px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;transition:background .08s;}
+.oib.on{background:#0A0A0A;}
+.sr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #ECECEC;}
+</style>
+</head>
+<body>
+<div id="app" style="width:100%;min-height:100dvh;background:#fff;color:#0A0A0A;max-width:430px;margin:0 auto;"></div>
+<div id="tc" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:calc(100% - 36px);max-width:394px;z-index:900;display:flex;flex-direction:column;gap:6px;pointer-events:none;"></div>
+<div id="sc"></div>
+<script>
+const T={bg:"#FFF",s1:"#F8F8F8",s2:"#F1F1F1",s3:"#E8E8E8",l1:"#ECECEC",l2:"#D6D6D6",l3:"#B8B8B8",ink:"#0A0A0A",t1:"#1A1A1A",t2:"#5A5A5A",t3:"#8A8A8A",t4:"#C0C0C0",g:"#14532D",gBg:"#F0FDF4",gBd:"#86EFAC",r:"#7F1D1D",rBg:"#FEF2F2",rBd:"#FECACA",a:"#78350F",aBg:"#FFFBEB",b:"#1E3A8A",bBg:"#EFF6FF"};
+const gMon=(off=0)=>{const n=new Date(),d=n.getDay(),m=new Date(n);m.setDate(n.getDate()-(d===0?6:d-1)+off*7);m.setHours(0,0,0,0);return m;};
+const aD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+const fmt=d=>d.toISOString().slice(0,10);
+const pS=(arr,s)=>arr[Math.abs(s)%arr.length];
+const CATS=["Pantalons","Pulls","Vestes","Chaussures","Accessoires","Shirts","Joggings"];
+const DS=["L","M","M","J","V","S","D"];
+const DF=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+const EVT=["École","Sport","Sortie","Travail","Détente","Soirée","RDV","Autre"];
+const GC=["Noir","Gris","Blanc","Bleu","Beige","Vert","Jaune","Marron","Crème"];
+const CH={"Noir":"#101010","Blanc":"#EDE8DF","Gris":"#727272","Bleu":"#284270","Beige":"#C0A46E","Vert":"#1C3620","Jaune":"#C8960C","Marron":"#4A2410","Crème":"#D4CCAA"};
+const CL=new Set(["Blanc","Crème","Beige","Jaune"]);
+const EDot={"École":"#1E3A8A","Sport":"#14532D","Sortie":"#4C1D95","Travail":"#1E3A8A","Détente":"#14532D","Soirée":"#831843","RDV":"#78350F","Autre":"#525252","Tenue libre":"#0A0A0A"};
+const CL2=["","Mauvais","Mauvais","Passable","Passable","Moyen","Moyen","Bon","Bon","Excellent","Parfait"];
+const CC=["","#7F1D1D","#7F1D1D","#78350F","#78350F","#78350F","#4A5568","#14532D","#14532D","#14532D","#14532D"];
+const KC=["Noir","Blanc","Gris","Bleu","Beige"];
+
+// ── GARDE-ROBE ──
+const SW=[
+  {id:"p1",name:"Jean Gris",brand:"",color:"Gris",category:"Pantalons",scoreCut:8,scoreLike:9,scoreWorn:10,photo:"",wC:28},
+  {id:"p2",name:"Jean Blanc",brand:"",color:"Blanc",category:"Pantalons",scoreCut:8,scoreLike:9,scoreWorn:10,photo:"",wC:26},
+  {id:"p3",name:"Jean Noir",brand:"",color:"Noir",category:"Pantalons",scoreCut:8,scoreLike:8,scoreWorn:9,photo:"",wC:16},
+  {id:"p4",name:"Jean Bleu",brand:"",color:"Bleu",category:"Pantalons",scoreCut:7,scoreLike:8,scoreWorn:7,photo:"",wC:12},
+  {id:"p5",name:"Pantalon Blanc",brand:"",color:"Blanc",category:"Pantalons",scoreCut:8,scoreLike:8,scoreWorn:5,photo:"",wC:5},
+  {id:"j1",name:"Jogging Bleu Nike",brand:"Nike",color:"Bleu",category:"Joggings",scoreCut:7,scoreLike:8,scoreWorn:9,photo:"",wC:14},
+  {id:"j2",name:"Jogging Gris",brand:"",color:"Gris",category:"Joggings",scoreCut:7,scoreLike:7,scoreWorn:5,photo:"",wC:5},
+  {id:"j3",name:"Jogging Noir",brand:"",color:"Noir",category:"Joggings",scoreCut:7,scoreLike:7,scoreWorn:4,photo:"",wC:4},
+  {id:"j4",name:"Jogging Beige",brand:"",color:"Beige",category:"Joggings",scoreCut:7,scoreLike:7,scoreWorn:3,photo:"",wC:3},
+  {id:"j5",name:"Jogging Jaune Nike",brand:"Nike",color:"Jaune",category:"Joggings",scoreCut:6,scoreLike:7,scoreWorn:4,photo:"",wC:4},
+  {id:"j6",name:"Jogging Flared",brand:"",color:"Noir",category:"Joggings",scoreCut:9,scoreLike:10,scoreWorn:8,photo:"",wC:7},
+  {id:"j7",name:"Jogging Vert",brand:"",color:"Vert",category:"Joggings",scoreCut:7,scoreLike:7,scoreWorn:3,photo:"",wC:2},
+  {id:"pu1",name:"Pull Noir",brand:"",color:"Noir",category:"Pulls",scoreCut:8,scoreLike:9,scoreWorn:10,photo:"",wC:32},
+  {id:"pu2",name:"Pull Ralph Lauren",brand:"Ralph Lauren",color:"Blanc",category:"Pulls",scoreCut:9,scoreLike:10,scoreWorn:10,photo:"",wC:22},
+  {id:"pu3",name:"Pull Blanc",brand:"",color:"Blanc",category:"Pulls",scoreCut:7,scoreLike:8,scoreWorn:8,photo:"",wC:14},
+  {id:"pu4",name:"Quarter Zip Bleu",brand:"",color:"Bleu",category:"Pulls",scoreCut:9,scoreLike:10,scoreWorn:10,photo:"",wC:20},
+  {id:"v1",name:"Veste V",brand:"",color:"Vert",category:"Vestes",scoreCut:9,scoreLike:10,scoreWorn:9,photo:"",wC:16},
+  {id:"v2",name:"K-Way",brand:"K-Way",color:"Noir",category:"Vestes",scoreCut:8,scoreLike:9,scoreWorn:8,photo:"",wC:14},
+  {id:"v3",name:"Doudoune",brand:"",color:"Noir",category:"Vestes",scoreCut:7,scoreLike:8,scoreWorn:5,photo:"",wC:5},
+  {id:"s1",name:"Shirt Stussy",brand:"Stussy",color:"Blanc",category:"Shirts",scoreCut:9,scoreLike:10,scoreWorn:8,photo:"",wC:5},
+  {id:"s2",name:"Shirt CK",brand:"Calvin Klein",color:"Blanc",category:"Shirts",scoreCut:9,scoreLike:9,scoreWorn:7,photo:"",wC:6},
+  {id:"s3",name:"Shirt Nike",brand:"Nike",color:"Blanc",category:"Shirts",scoreCut:8,scoreLike:8,scoreWorn:3,photo:"",wC:3},
+  {id:"ch1",name:"NB Sacai",brand:"New Balance x Sacai",color:"Blanc",category:"Chaussures",scoreCut:10,scoreLike:10,scoreWorn:9,photo:"",wC:18},
+  {id:"ch2",name:"NB AM",brand:"New Balance",color:"Gris",category:"Chaussures",scoreCut:9,scoreLike:9,scoreWorn:8,photo:"",wC:14},
+  {id:"ch3",name:"NB Noires",brand:"New Balance",color:"Noir",category:"Chaussures",scoreCut:8,scoreLike:8,scoreWorn:5,photo:"",wC:5},
+  {id:"ac1",name:"Épingle",brand:"",color:"Noir",category:"Accessoires",scoreCut:8,scoreLike:9,scoreWorn:3,photo:"",wC:3},
+];
+
+// ── HISTORIQUE 25 SEMAINES ──
+function buildHistory(){
+  const today=new Date(),dow=today.getDay();
+  const thisMon=new Date(today);
+  thisMon.setDate(today.getDate()-(dow===0?6:dow-1));
+  thisMon.setHours(0,0,0,0);
+  const wMon=w=>{const d=new Date(thisMon);d.setDate(thisMon.getDate()-(24-(w-1))*7);return d;};
+  const raw=[
+    {w:1,d:0,o:"Jean Gris + Shirt Stussy + Quarter Zip Bleu"},{w:1,d:1,o:"Pull Ralph Lauren"},{w:1,d:2,o:"Jean Noir"},{w:1,d:3,o:"Veste V"},{w:1,d:4,o:"Shirt CK"},
+    {w:2,d:0,o:"Jean Gris + Shirt Nike"},{w:2,d:1,o:"Shirt Stussy"},{w:2,d:3,o:"Jogging Bleu Nike + Shirt CK"},{w:2,d:4,o:"Pull Blanc"},
+    {w:3,d:0,o:"Jean Blanc + Shirt CK +dd"},{w:3,d:1,o:"Jean Noir + Pull Noir +dd"},{w:3,d:2,o:"Jean Blanc + Veste V",n:"absent"},{w:3,d:3,o:"Jogging Gris + Pull Ralph Lauren +épingle"},{w:3,d:4,o:"Jean Gris + Pull Noir"},
+    {w:4,d:0,o:"Jean Blanc + Pull Ralph Lauren"},{w:4,d:1,o:"Jean Gris + Quarter Zip Bleu"},{w:4,d:2,o:"",n:"absent"},{w:4,d:3,o:"Jogging Bleu Nike + Pull Blanc"},{w:4,d:4,o:"Jean Noir + Pull Ralph Lauren"},
+    {w:5,d:0,o:"Pantalon Blanc + Quarter Zip Bleu"},{w:5,d:1,o:"Jean Blanc + Pull Noir +dd"},{w:5,d:2,o:"Jogging Noir + Veste V"},{w:5,d:3,o:"Jogging Jaune Nike + Pull Noir"},{w:5,d:4,o:"Jean Gris + Pull Ralph Lauren +dd +NB Sacai"},
+    {w:6,d:0,o:"Jean Noir + Pull Noir"},{w:6,d:1,o:"Quarter Zip Bleu + Jean Blanc +NB Sacai"},{w:6,d:2,o:"Shirt Stussy + Jean Gris"},{w:6,d:3,o:"Jogging Bleu Nike + Pull Blanc"},{w:6,d:4,o:"Quarter Zip Bleu + Jean Gris +NB Sacai"},
+    {w:7,d:0,o:"Jean Blanc + Quarter Zip Bleu"},{w:7,d:1,o:"Jean Gris + Pull Ralph Lauren"},{w:7,d:2,o:"Jogging Vert + Pull Noir"},{w:7,d:3,o:"Jogging Beige + Veste V"},{w:7,d:4,o:"Jean Blanc + Pull Noir +NB Sacai"},
+    {w:8,d:0,o:"Jean Gris + Pull Noir"},{w:8,d:1,o:"",n:"Férié"},{w:8,d:2,o:"Jean Noir + Pull Noir",n:"absent"},{w:8,d:3,o:"Jogging Bleu Nike + Pull Blanc"},{w:8,d:4,o:"Jean Blanc + Quarter Zip Bleu +NB Sacai"},
+    {w:9,d:0,o:"Jean Gris + Quarter Zip Bleu +NB Sacai"},{w:9,d:1,o:"Jogging Bleu Nike + Pull Noir +NB AM",n:"absent"},{w:9,d:2,o:"Jean Noir + Veste V",n:"absent"},{w:9,d:3,o:"Jean Blanc + Pull Ralph Lauren +dd +NB Sacai"},{w:9,d:4,o:"Jean Gris + Pull Noir +dd +NB AM"},
+    {w:10,d:0,o:"Jean Noir + Pull Noir +dd +NB AM"},{w:10,d:1,o:"Jean Blanc + Quarter Zip Bleu +dd +NB Sacai"},{w:10,d:2,o:"Jogging Jaune Nike + Pull Noir +NB AM",n:"absent"},{w:10,d:3,o:"Jean Blanc + Veste V +NB Sacai"},{w:10,d:4,o:"Jean Gris + Pull Ralph Lauren +NB Sacai"},
+    {w:11,d:0,o:"Jean Gris + Pull Noir"},{w:11,d:1,o:"Jean Blanc + Pull Blanc +dd"},{w:11,d:2,o:"Jean Noir + Pull Noir",n:"absent"},{w:11,d:3,o:"Jogging Bleu Nike + Pull Blanc"},{w:11,d:4,o:"Jean Gris + Quarter Zip Bleu +dd"},
+    {w:12,d:0,o:"Jean Gris + Pull Ralph Lauren +dd +NB Sacai"},{w:12,d:1,o:"Pantalon Blanc + Pull Noir"},{w:12,d:2,o:"Jogging Beige + Veste V"},{w:12,d:3,o:"Jogging Bleu Nike + Pull Noir"},{w:12,d:4,o:"Pantalon Blanc + Pull Blanc +dd +NB Sacai"},
+    {w:13,d:0,o:"Jean Gris + Quarter Zip Bleu +dd +NB Sacai"},{w:13,d:1,o:"Jean Blanc + Veste V"},{w:13,d:2,o:"Jean Noir + Pull Noir"},{w:13,d:3,o:"Jogging Bleu Nike + Pull Blanc"},{w:13,d:4,o:"Jean Gris + Pull Noir +dd +NB AM"},
+    {w:14,d:0,o:"Jean Blanc + Pull Noir +dd"},{w:14,d:1,o:"Jean Gris + Pull Ralph Lauren +dd"},{w:14,d:2,o:"Jean Noir + Veste V",n:"absent"},{w:14,d:3,o:"Jogging Flared + Pull Noir +dd"},{w:14,d:4,o:"Jean Blanc + Pull Blanc +dd +NB Sacai"},
+    {w:15,d:0,o:"Jean Blanc + Quarter Zip Bleu +NB Sacai +dd"},{w:15,d:1,o:"Jean Bleu + Pull Noir +K-Way +NB AM"},{w:15,d:2,o:"Jogging Flared + Pull Blanc +NB Sacai"},{w:15,d:3,o:"Jean Bleu + Quarter Zip Bleu +NB Sacai +dd"},{w:15,d:4,o:"Jean Gris + Pull Noir +K-Way +NB AM"},
+    {w:16,d:0,o:"Jean Bleu + Pull Noir +NB AM +K-Way"},{w:16,d:1,o:"Jean Gris + Pull Ralph Lauren"},{w:16,d:2,o:"Jean Noir + Veste V +K-Way"},{w:16,d:3,o:"Jogging Bleu Nike + Pull Blanc"},{w:16,d:4,o:"Jean Gris + Quarter Zip Bleu"},
+    {w:17,d:0,o:"Jean Blanc + Quarter Zip Bleu +NB Sacai +dd"},{w:17,d:1,o:"Jean Bleu + Pull Ralph Lauren +NB Sacai"},{w:17,d:2,o:"Jean Blanc + Pull Noir +K-Way"},{w:17,d:3,o:"Jogging Jaune Nike + Pull Noir +K-Way"},{w:17,d:4,o:"Jean Gris + Pull Blanc +NB Sacai +K-Way"},
+    {w:18,d:0,o:"Jean Bleu + Pull Blanc"},{w:18,d:1,o:"Jean Gris + Pull Noir +K-Way"},{w:18,d:2,o:"Jogging Noir + Veste V +K-Way"},{w:18,d:3,o:"Jogging Flared + Pull Noir +K-Way"},{w:18,d:4,o:"Jean Blanc + Quarter Zip Bleu +dd"},
+    {w:19,d:0,o:"Jean Blanc + Quarter Zip Bleu +dd"},{w:19,d:1,o:"Jean Gris + Pull Blanc"},{w:19,d:2,o:"Jogging Noir + Veste V +K-Way"},{w:19,d:3,o:"Jogging Bleu Nike + Pull Blanc"},{w:19,d:4,o:"Jean Bleu + Pull Noir"},
+    {w:20,d:0,o:"Jean Blanc + Veste V"},{w:20,d:1,o:"Jean Gris + Pull Noir"},{w:20,d:2,o:"Jean Blanc + Pull Blanc"},{w:20,d:3,o:"Jogging Vert + Pull Noir +K-Way"},{w:20,d:4,o:"Jean Gris + Quarter Zip Bleu"},
+    {w:21,d:0,o:"Jean Bleu + Quarter Zip Bleu +NB Sacai"},{w:21,d:1,o:"Jean Gris + Pull Noir"},{w:21,d:2,o:"Jogging Noir + Veste V +K-Way"},{w:21,d:3,o:"Jogging Flared + Pull Noir"},{w:21,d:4,o:"Jean Bleu + Pull Blanc"},
+    {w:22,d:0,o:"Jean Gris + Pull Blanc +NB Sacai"},{w:22,d:1,o:"Jean Blanc + Pull Blanc +K-Way"},{w:22,d:2,o:"Jogging Gris + Pull Noir"},{w:22,d:3,o:"Jean Blanc + Quarter Zip Bleu +Doudoune"},{w:22,d:4,o:"Jean Bleu + Pull Noir"},
+    {w:23,d:0,o:"Jean Gris + Pull Noir"},{w:23,d:1,o:"Jean Bleu + Pull Ralph Lauren"},{w:23,d:2,o:"Jean Noir + Veste V"},{w:23,d:3,o:"Jogging Jaune Nike + Pull Noir"},{w:23,d:4,o:"Jean Blanc + Quarter Zip Bleu"},
+    {w:24,d:0,o:"Jean Bleu + Pull Ralph Lauren +NB Sacai"},{w:24,d:1,o:"Jean Gris + Quarter Zip Bleu +NB Sacai"},{w:24,d:2,o:"Jean Blanc + Veste V +NB Sacai"},{w:24,d:3,o:"Jogging Flared + Pull Noir +K-Way +NB Noires"},{w:24,d:4,o:"Jean Gris + Pull Noir +NB Noires"},
+    {w:25,d:0,o:"Jean Bleu + Pull Ralph Lauren +NB Sacai"},{w:25,d:1,o:"Jean Gris + Quarter Zip Bleu +NB Sacai"},{w:25,d:2,o:"Jean Blanc + Veste V +NB Sacai"},{w:25,d:3,o:"Jogging Flared + Pull Noir +K-Way +NB Noires"},{w:25,d:4,o:"Jean Gris + Pull Noir +NB Noires"},
+  ];
+  return raw.filter(r=>r.o||r.n).map(r=>{
+    const mon=wMon(r.w),date=fmt(aD(mon,r.d));
+    return{id:"h_"+r.w+"_"+r.d,type:"École",date,dayOfWeek:r.d,repeat:false,outfit:r.o||"",note:r.n||"",outfitRating:{},fromHistory:true};
+  });
+}
+
+const SOF=[
+  {id:"of1",name:"OG Dark",items:["Jean Noir","Pull Noir"],note:"Classique indémodable",rating:9},
+  {id:"of2",name:"Clean White",items:["Jean Blanc","Pull Blanc"],note:"Épuré",rating:8},
+  {id:"of3",name:"Ralph Day",items:["Jean Gris","Pull Ralph Lauren"],note:"Comfort premium",rating:10},
+  {id:"of4",name:"QZ Combo",items:["Jean Blanc","Quarter Zip Bleu"],note:"Chill mais stylé",rating:9},
+  {id:"of5",name:"Veste V Fit",items:["Jean Blanc","Veste V"],note:"Pièce signature",rating:9},
+  {id:"of6",name:"Flared Look",items:["Jogging Flared","Pull Noir","K-Way"],note:"Favoris 2026",rating:9},
+  {id:"of7",name:"Sacai Day",items:["Jean Gris","Quarter Zip Bleu","NB Sacai"],note:"Grail fit",rating:10},
+];
+const SWL=[
+  {id:"wl1",name:"NB Sacai (achat)",category:"Chaussures",color:"Blanc",brand:"New Balance x Sacai",price:"200",reason:"Grail — déjà portées",bought:false},
+  {id:"wl2",name:"K-Way",category:"Vestes",color:"Noir",brand:"K-Way",price:"80",reason:"Déjà acquis",bought:true},
+  {id:"wl3",name:"Doudoune",category:"Vestes",color:"Noir",brand:"",price:"",reason:"Jours froids",bought:true},
+  {id:"wl4",name:"Pull Gris",category:"Pulls",color:"Gris",brand:"",price:"60",reason:"Coloris manquant",bought:false},
+  {id:"wl5",name:"Jean Flared",category:"Pantalons",color:"Noir",brand:"",price:"",reason:"Inspiration jogging flared",bought:false},
+];
+
+function lD(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def;}catch(e){return def;}}
+const HIST=buildHistory();
+const st={
+  tab:0,
+  wr:lD("gq_wr4",SW),ev:lD("gq_ev4",HIST),of:lD("gq_of4",SOF),wl:lD("gq_wl4",SWL),
+  wo:0,sd:(()=>{const t=new Date().getDay();return t===0?6:t-1;})(),
+  aS:null,sD:{},evF:{},outF:{},rF:{},wdF:{},ofF:{},wiF:{},
+  wSec:"pieces",wSrch:"",wCat:null,
+  an:null,anL:false,recs:[],recsL:false,
+  stab:"recs",aiSug:"",rk:0,rt:"",twd:"",twI:null,twT:null,
+  // Suggestion par jour — sheet
+  sugDay:0,sugText:"",sugLoading:false,
+};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+
+function toast(msg,type="ok"){
+  const el=document.createElement("div");
+  el.style.cssText="background:"+(type==="err"?T.r:T.ink)+";color:#fff;padding:11px 15px;font-size:12px;font-weight:700;letter-spacing:.02em;display:flex;align-items:center;gap:9px;animation:toastIn .2s cubic-bezier(.32,.72,0,1);";
+  const dot=type==="err"?"#FCA5A5":type==="g"?"#86EFAC":"rgba(255,255,255,0.4)";
+  el.innerHTML='<div style="width:5px;height:5px;background:'+dot+';flex-shrink:0;"></div>'+msg;
+  document.getElementById("tc").appendChild(el);
+  setTimeout(()=>el.remove(),2600);
+}
+
+function startTW(text,cb,speed=14){
+  if(st.twI)clearInterval(st.twI);
+  if(st.twT)clearTimeout(st.twT);
+  st.twd="";let i=0;
+  st.twT=setTimeout(()=>{
+    st.twI=setInterval(()=>{i++;st.twd=text.slice(0,i);cb(st.twd,i<text.length);if(i>=text.length){clearInterval(st.twI);st.twI=null;}},speed);
+  },300);
+}
+
+const PX={
+  cal:["M3 9h18M8 2v3m8-3v3M3 6a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"],
+  hng:["M12 3a2 2 0 012 2v1.5l8 5.5c.4.3.4 1 0 1.3l-8 4.7-8-4.7c-.4-.3-.4-1 0-1.3l8-5.5V5a2 2 0 012-2z"],
+  str:["M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"],
+  pls:["M12 5v14M5 12h14"],edt:["M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7","M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"],
+  del:["M3 6h18","M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2","M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"],
+  cls:["M18 6L6 18M6 6l12 12"],chk:["M20 6L9 17l-5-5"],cR:["M9 18l6-6-6-6"],cL:["M15 18l-6-6 6-6"],
+  spk:["M13 2L3 14h9l-1 8 10-12h-9l1-8z"],lyr:["M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"],
+  rat:["M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 13.9h7.6L12 2z"],
+  bar:["M18 20V10","M12 20V4","M6 20v-6"],srch:["M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"],
+  trnd:["M22 7l-8.5 8.5-5-5L2 17","M16 7h6v6"],magic:["M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z","M20 16l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z"],
+};
+function ico(n,sz=16,col="currentColor",sw=1.8){
+  const p=(PX[n]||PX.pls).map(d=>'<path d="'+d+'"/>').join("");
+  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
+}
+
+// ── AI LOCAL ──
+const AI={
+  rec(wr,di,seed=0){
+    if(!wr.length)return"Ajoute des vêtements pour des suggestions.";
+    const by=c=>wr.filter(w=>w.category===c);
+    const best=a=>a.length?[...a].sort((a,b)=>(b.scoreLike+b.scoreCut)-(a.scoreLike+a.scoreCut))[0]:null;
+    const wE=di>=5,day=DF[di].toLowerCase();
+    const jean=best(by("Pantalons").filter(p=>p.name.toLowerCase().includes("jean")));
+    const pull=best(by("Pulls")),jogg=best(by("Joggings")),shoes=best(by("Chaussures")),veste=best(by("Vestes"));
+    const bas=wE?(jogg||jean):jean;
+    const parts=[bas,pull,di>=1?veste:null,shoes].filter(Boolean);
+    if(parts.length<2)return"Enrichis ta garde-robe pour des suggestions.";
+    const intros=["Pour ce "+day+" :","Suggestion grisch "+day+" —","Le combo du "+day+" :","Mise sur ce fit "+day+" :",""+DF[di]+" ="];
+    return pS(intros,di+seed)+" "+parts.map(p=>p.name).join(" + ")+".";
+  },
+  suggest(wr,evType,di){
+    if(!wr.length)return"Ajoute des vêtements.";
+    const by=c=>wr.filter(w=>w.category===c);
+    const best=a=>a.length?[...a].sort((a,b)=>(b.scoreLike+b.scoreCut)-(a.scoreLike+a.scoreCut))[0]:null;
+    const jean=best(by("Pantalons").filter(p=>p.name.toLowerCase().includes("jean")));
+    const pull=best(by("Pulls")),shoes=best(by("Chaussures")),veste=best(by("Vestes")),jogg=best(by("Joggings"));
+    const rules={"Sport":()=>[jogg,pull,shoes],"Soirée":()=>[jean,best(by("Pulls").filter(p=>p.scoreLike>=9)),veste,shoes],"default":()=>[jean,pull,veste,shoes]};
+    return((rules[evType]||rules["default"])()).filter(Boolean).map(p=>p.name).join(" + ")||"Pas assez de pièces.";
+  },
+  analyze(wr){
+    const by=c=>wr.filter(w=>w.category===c);
+    const avg=a=>{const c=a.filter(v=>typeof v==="number");return c.length?Math.round(c.reduce((s,v)=>s+v,0)/c.length*10)/10:0;};
+    const aS=a=>avg(a.flatMap(w=>[w.scoreLike||0,w.scoreCut||0]));
+    const cS=c=>{const it=by(c);if(!it.length)return 1;const q=Math.min(it.length,5);return Math.min(10,Math.round(((q/5)*5+aS(it)/2)*10)/10);};
+    const scores={};CATS.forEach(c=>{scores[c]=cS(c);});
+    const cc={};wr.forEach(w=>{cc[w.color]=(cc[w.color]||0)+1;});
+    const miss=KC.filter(c=>!cc[c]),low=wr.filter(w=>(w.scoreLike||0)<5);
+    const fp=[];
+    if(wr.length<10)fp.push("Bonne base — quelques ajouts ciblés élèveraient l'ensemble.");
+    else fp.push("Garde-robe consistante et bien construite.");
+    const weak=CATS.filter(c=>cS(c)<4);
+    if(weak.length)fp.push("Catégories à renforcer : "+weak.join(", ")+".");
+    if(miss.length)fp.push("Coloris absents : "+miss.join(", ")+".");
+    if(low.length)fp.push(low.length+" pièce"+(low.length>1?"s":"")+" avec note basse.");
+    if(!weak.length&&!miss.length&&!low.length)fp.push("Garde-robe bien équilibrée 👍");
+    const details={};
+    CATS.forEach(c=>{
+      const it=by(c),s=cS(c);
+      if(!it.length){const sg={"Pantalons":"Aucun pantalon.","Pulls":"Aucun pull.","Vestes":"Aucune veste.","Chaussures":"Aucune chaussure.","Shirts":"Aucun shirt.","Joggings":"Aucun jogging.","Accessoires":"Aucun accessoire."};details[c]=sg[c]||"Vide.";}
+      else{const top=[...it].sort((a,b)=>(b.scoreLike+b.scoreCut)-(a.scoreLike+a.scoreCut))[0];
+        details[c]=s>=8?"Excellent ("+it.length+" pièce"+(it.length>1?"s":"")+"). Top : "+top.name+".":s>=5?"Bonne base ("+it.length+"), moy. "+aS(it).toFixed(1)+"/10.":"Légère ("+it.length+"). À étoffer.";}
+    });
+    return{scores,feedback:fp.join(" "),details};
+  },
+  styleRecs(wr){
+    const by=c=>wr.filter(w=>w.category===c);
+    const cc={};wr.forEach(w=>{cc[w.color]=(cc[w.color]||0)+1;});
+    const cat={
+      "Pantalons":[{name:"Jean Flared Noir",brand:"",color:"Noir",price:"",reason:"Upgrade statement — dans la continuité du jogging flared"},{name:"Cargo Beige",brand:"Carhartt WIP",color:"Beige",price:"110",reason:"Coloris chaud absent de ta palette"}],
+      "Pulls":[{name:"Pull Gris",brand:"",color:"Gris",price:"60",reason:"Coloris manquant — très polyvalent"},{name:"Pull Col Roulé Noir",brand:"COS",color:"Noir",price:"75",reason:"Layering puissant sous la Veste V"}],
+      "Vestes":[{name:"Veste Workwear",brand:"Dickies",color:"Beige",price:"85",reason:"Workwear authentique — complète la Veste V"},{name:"Veste Sherpa",brand:"",color:"Crème",price:"90",reason:"Texture unique, différent de tout ce que tu as"}],
+      "Chaussures":[{name:"NB 574 Gris",brand:"New Balance",color:"Gris",price:"90",reason:"Complète les Sacai — chunky accessible"},{name:"Chuck 70 Noir",brand:"Converse",color:"Noir",price:"85",reason:"Alternative canvas noire polyvalente"}],
+      "Shirts":[{name:"Shirt Oxford",brand:"Ralph Lauren",color:"Blanc",price:"85",reason:"Registre élégant manquant — overshirt parfait"}],
+      "Joggings":[{name:"Jogging Crème",brand:"",color:"Crème",price:"",reason:"Teinte douce absente de tes joggings"}],
+      "Accessoires":[{name:"Bonnet",brand:"Carhartt WIP",color:"Noir",price:"30",reason:"Accessoire hiver essentiel"},{name:"Sac Tote",brand:"",color:"Noir",price:"",reason:"Complèterait les tenues école"}],
+    };
+    const prio=[];
+    CATS.forEach(c=>{
+      const it=by(c),ci=cat[c]||[];if(!ci.length)return;
+      const cands=ci.filter(r=>!by(c).some(w=>w.name===r.name));
+      if(!it.length)cands.slice(0,2).forEach(r=>prio.push({...r,category:c,priority:9+Math.random()}));
+      else if(it.length<2)cands.slice(0,1).forEach(r=>prio.push({...r,category:c,priority:7+Math.random()}));
+      else{const miss=cands.filter(r=>!cc[r.color]);miss.slice(0,1).forEach(r=>prio.push({...r,category:c,priority:5+Math.random()}));}
+    });
+    return prio.sort((a,b)=>b.priority-a.priority).slice(0,8).map(r=>({...r,priority:Math.round(r.priority)}));
+  },
+  colorReport(wr){
+    const cc={};wr.forEach(w=>{cc[w.color]=(cc[w.color]||0)+1;});
+    const miss=KC.filter(c=>!cc[c]);
+    const dom=Object.entries(cc).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    const lines=[];
+    if(dom.length)lines.push("Dominantes : "+dom.map(([c,n])=>c+" ("+n+")").join(", ")+".");
+    if(miss.length){const m={"Gris":"Le gris manque — très polyvalent.","Beige":"Le beige apporte chaleur."};miss.slice(0,2).forEach(c=>{if(m[c])lines.push(m[c]);});}
+    if(!miss.length&&wr.length>=8)lines.push("Palette cohérente et équilibrée.");
+    return lines.join(" ");
+  },
+};
+
+function computeStats(){
+  const evs=st.ev.filter(e=>e.outfit&&e.outfit.trim());
+  const pc={};
+  evs.forEach(ev=>{
+    const pats=[
+      ["Jean Gris",/jean gris/i],["Jean Blanc",/jean blanc/i],["Jean Noir",/jean noir/i],["Jean Bleu",/jean bleu/i],
+      ["Pull Noir",/pull noir/i],["Pull Ralph Lauren",/pull ralph/i],["Pull Blanc",/pull blanc/i],
+      ["Quarter Zip Bleu",/quarter zip|qz bleu/i],["Veste V",/veste v/i],
+      ["Jogging Bleu Nike",/jogging bleu|jogg bleu/i],["Jogging Flared",/jogg.+flared|jogging flared/i],
+      ["Jogging Jaune Nike",/jogg.+jaune/i],["K-Way",/k.?way/i],
+      ["NB Sacai",/sacai/i],["NB AM",/\bnb am\b/i],["Doudoune",/doudoune/i],
+    ];
+    pats.forEach(([nm,re])=>{if(re.test(ev.outfit))pc[nm]=(pc[nm]||0)+1;});
+  });
+  const df=[0,0,0,0,0,0,0];
+  evs.forEach(ev=>{if(ev.dayOfWeek!=null&&ev.dayOfWeek<7)df[ev.dayOfWeek]++;});
+  const cc={};
+  evs.forEach(ev=>{
+    const cp=[
+      ["Jean Gris + Pull Noir",/jean gris.+pull noir/i],["Jean Blanc + Pull Blanc",/jean blanc.+pull blanc/i],
+      ["Jean Blanc + QZ Bleu",/jean blanc.+(quarter zip|qz)/i],["Jean Gris + Pull Ralph",/jean gris.+ralph/i],
+      ["Jean Noir + Pull Noir",/jean noir.+pull noir/i],["Jogging Bleu + Pull Blanc",/jogg.+bleu.+pull blanc/i],
+      ["Jean Blanc + Veste V",/jean blanc.+veste v/i],["Jogging Flared + Pull Noir",/jogg.+flared.+pull noir/i],
+    ];
+    cp.forEach(([nm,re])=>{if(re.test(ev.outfit))cc[nm]=(cc[nm]||0)+1;});
+  });
+  return{pc,df,cc,total:evs.length};
+}
+
+// ── SPIDER ──
+function spider(scores){
+  const cats=Object.keys(scores),n=cats.length;if(n<3)return"";
+  const W=260,cx=130,cy=122,r=86;
+  const pt=(i,ratio)=>{const a=(i/n)*2*Math.PI-Math.PI/2;return[cx+r*ratio*Math.cos(a),cy+r*ratio*Math.sin(a)];};
+  const sP=cats.map((_,i)=>pt(i,Math.max(0.05,(scores[cats[i]]||0)/10)));
+  const lP=cats.map((_,i)=>pt(i,1.32));
+  const gp=rv=>cats.map((_,i)=>pt(i,rv)).map((p,i)=>(i===0?"M":"L")+p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ")+"Z";
+  const sp=sP.map((p,i)=>(i===0?"M":"L")+p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ")+"Z";
+  const sc=v=>v>=7?T.g:v>=5?T.a:T.r;
+  const g=[.25,.5,.75,1].map(rv=>'<path d="'+gp(rv)+'" fill="none" stroke="'+(rv===1?T.l2:T.l1)+'" stroke-width="'+(rv===1?1:.7)+'"/>').join("");
+  const ax=cats.map((_,i)=>{const p=pt(i,1);return'<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="'+T.l1+'" stroke-width=".7"/>';}).join("");
+  const gl=[2.5,5,7.5].map((v,i)=>'<text x="'+(cx+3)+'" y="'+(cy-r*(i+1)*.25+3)+'" fill="'+T.t4+'" font-size="7.5" font-family="inherit">'+v+"</text>").join("");
+  const dt=sP.map((p,i)=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4.5" fill="'+sc(scores[cats[i]]||0)+'" stroke="'+T.bg+'" stroke-width="2.5"/>').join("");
+  const lb=cats.map((c,i)=>{const[lx,ly]=lP[i];const anch=lx<cx-12?"end":lx>cx+12?"start":"middle";return'<text x="'+lx+'" y="'+ly+'" text-anchor="'+anch+'" dominant-baseline="middle" fill="'+T.t2+'" font-size="9" font-family="inherit" font-weight="700">'+c+"</text>";}).join("");
+  const svg='<svg width="'+W+'" height="244" style="display:block;margin:0 auto;">'+g+ax+gl+'<path d="'+sp+'" fill="rgba(0,0,0,0.05)" stroke="'+T.ink+'" stroke-width="1.6"/>'+dt+lb+"</svg>";
+  const rows=cats.map(c=>{const s=scores[c]||0,col=sc(s),cl=CL2[Math.round(s)]||"";return'<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid '+T.l1+'"><div style="width:5px;height:5px;background:'+col+';flex-shrink:0;"></div><span style="font-size:11px;color:'+T.t2+';flex:1;font-weight:600;">'+c+'</span><span style="font-size:9px;font-weight:700;color:'+col+';letter-spacing:.08em;text-transform:uppercase;">'+cl+'</span><span style="font-size:13px;color:'+T.ink+';font-weight:900;min-width:20px;text-align:right;">'+s+"</span></div>";}).join("");
+  return svg+'<div style="border-top:1px solid '+T.l1+';margin-top:12px;">'+rows+"</div>";
+}
+
+function cTile(color,h=170,w="100%",ex=""){
+  const hex=CH[color]||T.s2,lt=CL.has(color);
+  return'<div style="background:'+hex+';height:'+h+'px;width:'+w+';display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;'+ex+'"><span style="font-size:8px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:'+(lt?"rgba(0,0,0,.2)":"rgba(255,255,255,.2)")+';">'+color+"</span></div>";
+}
+function sBdg(val,sm=false){
+  const c=val>=7?T.g:val>=5?T.a:T.r,bg=val>=7?T.gBg:val>=5?T.aBg:T.rBg;
+  return'<span style="font-size:'+(sm?9:10)+'px;font-weight:800;color:'+c+';background:'+bg+';border:1px solid '+c+'22;padding:'+(sm?"2px 5px":"3px 7px")+';letter-spacing:.04em;">'+val+"/10</span>";
+}
+function cpick(sel,fk){
+  const sw=GC.map(c=>{
+    const isS=sel===c,hex=CH[c]||T.s2,lt=CL.has(c);
+    const ck=isS?'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">'+ico("chk",12,lt?T.ink:"#fff",3)+"</div>":"";
+    return'<button onclick="setFC(\''+fk+'\',\''+c+'\')" title="'+c+'" style="width:32px;height:32px;background:'+hex+';border:'+(isS?"2.5px solid "+T.ink:"1px solid "+(lt?T.l2:"transparent"))+';cursor:pointer;position:relative;outline:'+(isS?"2px solid "+T.bg:"none")+';outline-offset:'+(isS?-4:0)+'px;transform:'+(isS?"scale(1.15)":"scale(1)")+';box-shadow:'+(isS?"0 2px 8px rgba(0,0,0,.18)":"none")+';">'+ck+"</button>";
+  }).join("");
+  const pv=sel?'<div style="display:flex;align-items:center;gap:8px;margin-top:9px;"><div style="width:16px;height:16px;background:'+(CH[sel]||T.s2)+';border:1px solid '+T.l1+';"></div><span style="font-size:11px;color:'+T.t2+';font-weight:600;">'+sel+"</span></div>":"";
+  return'<div style="margin-bottom:16px;"><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-bottom:8px;">Couleur</div><div style="display:flex;flex-wrap:wrap;gap:8px;">'+sw+"</div>"+pv+"</div>";
+}
+function slider(label,val,fn){
+  const cl=CL2[val]||"",cco=CC[val]||T.t3;
+  const segs=Array.from({length:10},(_,i)=>'<button class="sb'+(i<val?" on":"")+'" onclick="'+fn+"("+( i+1)+')" style="flex:1;height:4px;border:none;cursor:pointer;background:'+(i<val?T.ink:T.s3)+';border-radius:1px;"></button>').join("");
+  return'<div style="margin-bottom:22px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;"><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';">'+label+'</div><div style="display:flex;align-items:baseline;gap:4px;"><span style="font-size:28px;font-weight:900;color:'+T.ink+';letter-spacing:-.05em;line-height:1;">'+val+'</span><span style="font-size:11px;color:'+T.t3+';">/10</span><span style="font-size:9px;font-weight:700;color:'+cco+';letter-spacing:.08em;text-transform:uppercase;">'+cl+'</span></div></div><div style="display:flex;gap:3px;">'+segs+"</div></div>";
+}
+function fld(label,val,fn,ph="",multi=false){
+  const lh=label?'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-bottom:6px;">'+label+"</div>":"";
+  const esc=(val||"").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+  const inp=multi?'<textarea class="fb" rows="3" style="resize:none;line-height:1.55;" oninput="'+fn+'" placeholder="'+ph+'">'+(val||"").replace(/</g,"&lt;")+"</textarea>":'<input class="fb" value="'+esc+'" oninput="'+fn+'" placeholder="'+ph+'"/>';
+  return'<div style="margin-bottom:16px;">'+lh+inp+"</div>";
+}
+function sel(label,val,fn,opts){
+  const lh=label?'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-bottom:6px;">'+label+"</div>":"";
+  const ops=opts.map(o=>'<option value="'+o+'"'+(val===o?" selected":"")+">"+o+"</option>").join("");
+  return'<div style="margin-bottom:16px;">'+lh+'<select class="fb" onchange="'+fn+'">'+ops+"</select></div>";
+}
+
+// ── SHEET SYSTEM ──
+function oS(id){st.aS=id;document.body.style.overflow="hidden";rS();}
+function cS(){st.aS=null;document.body.style.overflow="";rS();render();}
+function SW2(id,title,content,full=false){
+  if(st.aS!==id)return"";
+  return'<div class="sheet-overlay" onclick="cS()"></div><div class="sheet-panel'+(full?" full":"")+'"><div style="width:40px;height:3px;background:'+T.s3+';margin:12px auto 0;border-radius:2px;"></div><div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px 13px;border-bottom:1px solid '+T.l1+'"><span style="font-size:15px;font-weight:800;letter-spacing:-.03em;color:'+T.ink+';">'+title+'</span><button onclick="cS()" style="background:none;border:1px solid '+T.l1+';width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:2px;">'+ico("cls",12,T.t2)+'</button></div><div style="flex:1;overflow-y:auto;padding:18px 18px 32px;-webkit-overflow-scrolling:touch;">'+content+"</div></div>";
+}
+
+function gWD(){return Array.from({length:7},(_,i)=>aD(gMon(st.wo),i));}
+function gEFD(di){const wd=gWD(),ds=fmt(wd[di]);return st.ev.filter(e=>e.date===ds||(e.repeat&&e.dayOfWeek===di));}
+
+// ── PLANNING ──
+function rPlanning(){
+  const wd=gWD(),today=new Date().toDateString(),sE=gEFD(st.sd);
+  const month=wd[0].toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+  const rec=AI.rec(st.wr,st.sd,st.rk);
+  if(rec!==st.rt){
+    st.rt=rec;st.twd="";
+    startTW(rec,(d,r)=>{st.twd=d;const el=document.getElementById("tw-text");if(el)el.innerHTML=d+(r?'<span style="opacity:.4;animation:blink .7s step-end infinite;">▍</span>':"");});
+  }
+  const tP=sE.filter(e=>e.outfit).length,tR=st.ev.filter(e=>e.outfitRating&&e.outfitRating.style).length,tW=st.ev.filter(e=>e.outfit).length;
+  const days=DS.map((d,i)=>{
+    const dt=wd[i],iT=dt.toDateString()===today,iS=st.sd===i;
+    const evs=gEFD(i),hO=evs.some(e=>e.outfit),hR=evs.some(e=>e.outfitRating&&e.outfitRating.style);
+    let bg=T.bg,bo=T.l1;if(iS){bg=T.ink;bo=T.ink;}else if(iT){bg=T.s2;bo=T.l2;}
+    const dots=(evs.length>0?'<div style="width:3px;height:3px;background:'+(iS?"rgba(255,255,255,.4)":T.t3)+';"></div>':"")+
+      (hO?'<div style="width:3px;height:3px;background:'+(iS?"rgba(255,255,255,.7)":T.ink)+';"></div>':"")+
+      (hR?'<div style="width:3px;height:3px;background:'+(iS?"rgba(255,210,40,.9)":"#D97706")+';"></div>':"");
+    return'<button onclick="selDay('+i+')" style="background:'+bg+';border:1px solid '+bo+';padding:9px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:background .1s,border-color .1s;">'
+      +'<span style="font-size:7px;color:'+(iS?"rgba(255,255,255,.4)":T.t4)+';font-weight:800;letter-spacing:.12em;">'+d+"</span>"
+      +'<span style="font-size:18px;color:'+(iS?"#fff":T.ink)+';font-weight:900;letter-spacing:-.04em;line-height:1;">'+dt.getDate()+"</span>"
+      +'<div style="display:flex;gap:2.5px;height:4px;align-items:center;">'+dots+"</div></button>";
+  }).join("");
+  const evH=sE.length===0
+    ?'<div style="padding:40px 16px;text-align:center;background:'+T.s1+';">'+ico("cal",20,T.t4)+'<div style="font-size:12px;color:'+T.t3+';font-weight:700;margin-top:8px;">Aucun événement</div><div style="font-size:10px;color:'+T.t4+';margin-top:3px;">Ajoute un événement ou une tenue</div></div>'
+    :sE.map((ev,idx)=>{
+      const dot=EDot[ev.type]||T.t2,isL=idx===sE.length-1,hR=ev.outfitRating&&ev.outfitRating.style>0;
+      const rH=hR?'<div style="display:flex;gap:14px;margin-top:9px;padding-top:9px;border-top:1px solid '+T.l1+';">'
+        +'<div style="display:flex;align-items:center;gap:5px;"><div style="width:5px;height:5px;background:#D97706;"></div><span style="font-size:10px;color:'+T.a+';font-weight:800;">STYLE '+ev.outfitRating.style+'/10</span></div>'
+        +'<div style="display:flex;align-items:center;gap:5px;"><div style="width:5px;height:5px;background:'+T.g+';"></div><span style="font-size:10px;color:'+T.g+';font-weight:800;">PRATIQUE '+ev.outfitRating.practical+'/10</span></div></div>':"";
+      return'<div style="border-bottom:'+(isL?"none":"1px solid "+T.l1)+';">'
+        +'<div style="padding:12px 16px 10px;display:flex;justify-content:space-between;align-items:flex-start;">'
+          +'<div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:3px;min-height:36px;background:'+dot+';flex-shrink:0;margin-top:2px;"></div>'
+            +'<div><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;font-weight:800;color:'+T.ink+';letter-spacing:-.02em;">'+ev.type+"</span>"
+              +(ev.repeat?'<span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:'+T.t3+';background:'+T.s2+';padding:2px 7px;">HEBDO</span>':"")
+              +(ev.fromHistory?'<span style="font-size:9px;font-weight:700;color:'+T.g+';background:'+T.gBg+';padding:2px 7px;letter-spacing:.06em;text-transform:uppercase;">HIST</span>':"")
+            +"</div>"+(ev.note?'<div style="font-size:11px;color:'+T.t3+';margin-top:2px;font-style:italic;">'+ev.note+"</div>":"")+"</div></div>"
+          +'<div style="display:flex;gap:4px;flex-shrink:0;">'
+            +'<button onclick="oRS(\''+ev.id+'\')" style="background:'+(hR?T.aBg:T.s1)+';border:1px solid '+(hR?"#FCD34D":T.l1)+';width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;">'+ico("rat",12,hR?T.a:T.t4,1.4)+"</button>"
+            +'<button onclick="oEES(\''+ev.id+'\')" style="background:'+T.s1+';border:1px solid '+T.l1+';width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;">'+ico("edt",12,T.t3)+"</button>"
+            +'<button onclick="dEv(\''+ev.id+'\')" style="background:'+T.rBg+';border:1px solid '+T.r+'18;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;">'+ico("del",12,T.r)+"</button>"
+          +"</div></div>"
+        +'<div style="margin:0 16px 13px 29px;background:'+T.s1+';border:1px solid '+T.l1+';padding:10px 12px;">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+(ev.outfit?8:0)+'px;">'
+            +'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';">Tenue</div>'
+            +'<button onclick="oOSp(\''+ev.id+'\',false)" style="background:'+(ev.outfit?T.ink:T.bg)+';border:1px solid '+(ev.outfit?T.ink:T.l2)+';padding:3px 9px;font-size:10px;font-weight:800;letter-spacing:.08em;color:'+(ev.outfit?"#fff":T.t2)+';cursor:pointer;font-family:inherit;text-transform:uppercase;">'+(ev.outfit?"Modifier":"Ajouter")+"</button>"
+          +"</div>"+(ev.outfit?'<p style="font-size:13px;color:'+T.ink+';line-height:1.6;margin:0;font-weight:500;">'+ev.outfit+"</p>":'<p style="font-size:12px;color:'+T.t4+';margin:6px 0 0;font-style:italic;">Aucune tenue définie</p>')+rH
+        +"</div></div>";
+    }).join("");
+  const tw=st.twd||"",twR=tw.length<(st.rt||"").length;
+  return'<div style="padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid '+T.l1+';">'
+    +'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-bottom:8px;">'+new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})+"</div>"
+    +'<div style="font-size:32px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">Bonjour Yanis</div>'
+    +'<div style="display:flex;gap:0;margin-top:14px;border-top:1px solid '+T.l1+';">'
+      +'<div style="flex:1;padding:12px 0;"><div style="font-size:20px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">'+tP+"/"+sE.length+'</div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-top:4px;">Tenues planif.</div></div>'
+      +'<div style="flex:1;padding:12px 0 12px 14px;border-left:1px solid '+T.l1+'"><div style="font-size:20px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">'+tR+'</div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-top:4px;">Notées</div></div>'
+      +'<div style="flex:1;padding:12px 0 12px 14px;border-left:1px solid '+T.l1+'"><div style="font-size:20px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">'+tW+'</div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-top:4px;">Total portées</div></div>'
+    +"</div></div>"
+    // Bloc IA
+    +'<div style="background:'+T.ink+';padding:16px 18px;margin-bottom:24px;position:relative;overflow:hidden;">'
+      +'<div style="position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 24px,rgba(255,255,255,.018) 24px,rgba(255,255,255,.018) 25px),repeating-linear-gradient(90deg,transparent,transparent 24px,rgba(255,255,255,.018) 24px,rgba(255,255,255,.018) 25px);pointer-events:none;"></div>'
+      +'<div style="position:relative;">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+          +'<div style="display:flex;align-items:center;gap:7px;">'+ico("spk",11,"rgba(255,255,255,.3)",1.5)+'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);">Suggestion du jour</div></div>'
+          +'<div style="display:flex;gap:6px;">'
+            +'<button onclick="oSugSheet()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:4px 10px;font-size:9px;color:rgba(255,255,255,.7);cursor:pointer;font-family:inherit;font-weight:800;letter-spacing:.1em;display:flex;align-items:center;gap:5px;">'+ico("magic",10,"rgba(255,255,255,.7)",1.5)+'CHOISIR JOUR</button>'
+            +'<button onclick="refreshRec()" style="background:none;border:1px solid rgba(255,255,255,.12);padding:4px 10px;font-size:9px;color:rgba(255,255,255,.4);cursor:pointer;font-family:inherit;font-weight:800;letter-spacing:.12em;">↺</button>'
+          +"</div>"
+        +"</div>"
+        +'<p id="tw-text" style="font-size:14px;color:rgba(255,255,255,.88);line-height:1.72;margin:0;font-weight:400;">'+tw+(twR?'<span style="opacity:.4;animation:blink .7s step-end infinite;">▍</span>':"")+"</p>"
+      +"</div>"
+    +"</div>"
+    // Nav semaine
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">'
+      +'<button onclick="chgWk(-1)" style="background:none;border:none;cursor:pointer;padding:4px 2px;display:flex;">'+ico("cL",17,T.t2,2.2)+"</button>"
+      +'<div style="text-align:center;"><span style="font-size:12px;font-weight:800;letter-spacing:.02em;text-transform:capitalize;color:'+T.ink+';">'+month+"</span>"+(st.wo===0?'<span style="font-size:10px;color:'+T.t3+';margin-left:8px;font-weight:600;">Cette semaine</span>':'<span onclick="chgWk(0,\'r\')" style="font-size:10px;color:'+T.t3+';margin-left:8px;font-weight:600;cursor:pointer;text-decoration:underline;">↩ Aujourd\'hui</span>')+"</div>"
+      +'<button onclick="chgWk(1)" style="background:none;border:none;cursor:pointer;padding:4px 2px;display:flex;">'+ico("cR",17,T.t2,2.2)+"</button>"
+    +"</div>"
+    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px;">'+days+"</div>"
+    +'<div style="border:1px solid '+T.l1+';">'
+      +'<div style="padding:12px 16px;border-bottom:1px solid '+T.l1+';display:flex;justify-content:space-between;align-items:center;background:'+T.s1+';">'
+        +'<div><div style="font-size:16px;font-weight:900;letter-spacing:-.03em;color:'+T.ink+';line-height:1;">'+DF[st.sd]+"</div>"
+        +'<div style="font-size:10px;color:'+T.t3+';margin-top:2px;font-weight:600;">'+wd[st.sd].toLocaleDateString("fr-FR",{day:"numeric",month:"long"})+(sE.length>0?" · "+sE.length+" événement"+(sE.length>1?"s":""):"")+"</div></div>"
+        +'<div style="display:flex;gap:7px;"><button onclick="oAES()" class="bo bs" style="display:flex;align-items:center;gap:6px;">'+ico("pls",12,T.t2,1.8)+'Événement</button><button onclick="oOSp(null,true)" class="bp bs" style="display:flex;align-items:center;gap:6px;">'+ico("lyr",12,"#fff",2)+'Tenue</button></div>'
+      +"</div>"
+      +evH
+    +"</div>";
+}
+
+// ── GARDE-ROBE ──
+function rWardrobe(){
+  let filtered=st.wr;
+  if(st.wSrch)filtered=filtered.filter(i=>i.name.toLowerCase().includes(st.wSrch.toLowerCase())||i.brand.toLowerCase().includes(st.wSrch.toLowerCase())||i.color.toLowerCase().includes(st.wSrch.toLowerCase()));
+  if(st.wCat)filtered=filtered.filter(i=>i.category===st.wCat);
+  const avg=st.wr.length?Math.round(st.wr.reduce((a,w)=>(a+(w.scoreLike+w.scoreCut)/2),0)/st.wr.length*10)/10:0;
+  const catList=CATS.map(c=>({c,cnt:st.wr.filter(w=>w.category===c).length})).filter(x=>x.cnt>0);
+  const pills=catList.map(({c,cnt})=>'<button onclick="sWCat(\''+c+'\')" class="cp'+(st.wCat===c?" on":"")+'">'+c+'<span style="opacity:.5;font-size:8px;margin-left:3px;">'+cnt+"</span></button>").join("");
+  const allP='<button onclick="sWCat(null)" class="cp'+(st.wCat?"":" on")+'">Tout</button>';
+  const byCat=CATS.map(c=>({c,items:filtered.filter(w=>w.category===c)})).filter(g=>g.items.length>0);
+  const sBar='<div style="position:relative;margin-bottom:12px;"><div style="position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;">'+ico("srch",14,T.t4,1.8)+"</div>"
+    +'<input class="fb" value="'+st.wSrch.replace(/"/g,"&quot;")+'" oninput="sWSrch(this.value)" placeholder="Rechercher vêtement, marque, couleur…" style="padding-left:34px;font-size:13px;"/>'
+    +(st.wSrch?'<button onclick="sWSrch(\'\')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;display:flex;">'+ico("cls",12,T.t3)+"</button>":"")+"</div>";
+  const pillsRow=!st.wSrch?'<div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-bottom:16px;">'+allP+pills+"</div>":"";
+  const info=(st.wSrch||st.wCat)?'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><span style="font-size:11px;color:'+T.t3+';font-weight:600;">'+filtered.length+" résultat"+(filtered.length!==1?"s":"")+'</span><button onclick="clrWF()" style="background:none;border:none;font-size:10px;color:'+T.t3+';cursor:pointer;font-weight:800;font-family:inherit;text-decoration:underline;">Tout effacer</button></div>':"";
+  if(!byCat.length){
+    return'<div style="padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid '+T.l1+';">'
+      +'<div style="font-size:28px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">Garde-robe</div>'
+      +'<div style="display:flex;gap:7px;margin-top:12px;">'
+        +'<button onclick="runAn()" class="bo bs" style="display:flex;align-items:center;gap:6px;">'+ico("bar",12,T.t2,1.8)+'Analyse</button>'
+        +'<button onclick="oAWS()" class="bp bs" style="display:flex;align-items:center;gap:6px;">'+ico("pls",12,"#fff",2)+'Ajouter</button>'
+      +"</div></div>"
+      +sBar+pillsRow+info
+      +'<div style="text-align:center;padding:60px 0;border:1px dashed '+T.l1+';">'+ico(st.wSrch?"srch":"hng",26,T.t4)+'<div style="font-size:12px;color:'+T.t3+';font-weight:700;margin-top:10px;">'+(st.wSrch?"Aucun résultat":"Garde-robe vide")+"</div></div>";
+  }
+  const catH=byCat.map(({c,items})=>{
+    const sc=st.an&&st.an.scores?st.an.scores[c]:null;
+    const cards=items.map(item=>{
+      const cF=Array.from({length:10},(_,i)=>'<div style="flex:1;height:2px;background:'+(i<item.scoreCut?(item.scoreCut>=7?T.g:item.scoreCut>=5?T.a:T.r):T.s3)+';"></div>').join("");
+      const lF=Array.from({length:10},(_,i)=>'<div style="flex:1;height:2px;background:'+(i<item.scoreLike?(item.scoreLike>=7?T.g:item.scoreLike>=5?T.a:T.r):T.s3)+';"></div>').join("");
+      const wC=item.wC||0;
+      const wBdg=wC>15?'<span style="font-size:8px;font-weight:800;color:'+T.g+';background:'+T.gBg+';padding:1px 5px;border:1px solid '+T.gBd+';letter-spacing:.06em;">'+wC+'×</span>':wC>0?'<span style="font-size:8px;color:'+T.t4+';font-weight:600;">'+wC+'×</span>':"";
+      return'<button onclick="oEWS(\''+item.id+'\')" class="ci">'
+        +(item.photo?'<img src="'+item.photo+'" alt="'+item.name+'" style="width:148px;height:185px;object-fit:cover;display:block;"/>':cTile(item.color,185,"148px"))
+        +'<div style="padding:9px 11px 11px;border-top:1px solid '+T.l1+';">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;"><div style="font-size:12px;font-weight:800;color:'+T.ink+';letter-spacing:-.02em;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100px;">'+item.name+"</div>"+wBdg+"</div>"
+          +'<div style="font-size:9px;color:'+T.t3+';font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;">'+(item.brand||"—")+"</div>"
+          +'<div style="display:flex;flex-direction:column;gap:4px;">'
+            +'<div style="display:flex;align-items:center;gap:5px;"><span style="font-size:7px;color:'+T.t4+';font-weight:700;min-width:28px;">COUPE</span><div style="display:flex;flex:1;gap:1px;">'+cF+"</div></div>"
+            +'<div style="display:flex;align-items:center;gap:5px;"><span style="font-size:7px;color:'+T.t4+';font-weight:700;min-width:28px;">APPRÉC</span><div style="display:flex;flex:1;gap:1px;">'+lF+"</div></div>"
+          +"</div></div></button>";
+    }).join("");
+    return'<div style="margin-bottom:28px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid '+T.l1+';">'
+        +'<div style="display:flex;align-items:baseline;gap:10px;"><span style="font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:'+T.ink+';">'+c+'</span><span style="font-size:10px;color:'+T.t4+';font-weight:700;">'+items.length+"</span></div>"
+        +(sc!=null?sBdg(Math.round(sc),true):"")
+      +"</div>"
+      +'<div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px;">'
+        +cards
+        +'<button onclick="oAWS()" style="flex-shrink:0;width:72px;background:none;border:1px dashed '+T.l1+';cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:214px;">'+ico("pls",16,T.t4,1.4)+'<span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:'+T.t4+';">AJOUTER</span></button>'
+      +"</div></div>";
+  }).join("");
+  const outfitH=st.wSec==="outfits"?rWOutfits():"";
+  return'<div style="padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid '+T.l1+';">'
+    +'<div style="font-size:28px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">Garde-robe</div>'
+    +'<div style="display:flex;gap:0;margin-top:16px;border-top:1px solid '+T.l1+';">'
+      +'<div style="flex:1;padding:12px 0;"><div style="font-size:22px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">'+st.wr.length+'</div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-top:4px;">Pièces</div></div>'
+      +'<div style="flex:1;padding:12px 0 12px 16px;border-left:1px solid '+T.l1+'"><div style="font-size:22px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">'+st.of.length+'</div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-top:4px;">Tenues</div></div>'
+      +'<div style="flex:1;padding:12px 0 12px 16px;border-left:1px solid '+T.l1+'"><div style="font-size:22px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">'+(avg||"—")+'</div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-top:4px;">Moy. appréc.</div></div>'
+    +"</div></div>"
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+      +'<div style="display:flex;border-bottom:2px solid '+T.l1+';gap:0;" class="tu">'
+        +'<button onclick="sWSec(\'pieces\')" class="'+(st.wSec==="pieces"?"on":"")+'" style="padding-right:16px;">PIÈCES</button>'
+        +'<button onclick="sWSec(\'outfits\')" class="'+(st.wSec==="outfits"?"on":"")+'" style="padding-right:16px;">TENUES</button>'
+      +"</div>"
+      +'<div style="display:flex;gap:6px;"><button onclick="runAn()" class="bo bs" style="display:flex;align-items:center;gap:6px;">'+ico("bar",12,T.t2,1.8)+'Analyse</button><button onclick="oAWS()" class="bp bs" style="display:flex;align-items:center;gap:6px;">'+ico("pls",12,"#fff",2)+"Ajouter</button></div>"
+    +"</div>"
+    +(st.wSec==="pieces"?sBar+pillsRow+info+catH:rWOutfits());
+}
+
+function rWOutfits(){
+  const ofs=st.of;
+  const add='<button onclick="oAOfS()" style="width:100%;background:none;border:1px dashed '+T.l2+';padding:13px;color:'+T.t2+';cursor:pointer;font-size:11px;margin-bottom:14px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">'+ico("pls",12,T.t2)+"CRÉER UNE TENUE</button>";
+  if(!ofs.length)return add+'<div style="text-align:center;padding:52px 0;border:1px dashed '+T.l1+';">'+ico("lyr",22,T.t4)+'<div style="font-size:12px;color:'+T.t3+';font-weight:700;margin-top:10px;">Aucune tenue créée</div></div>';
+  const cards=ofs.map(o=>{
+    const cols=o.items.map(nm=>st.wr.find(w=>w.name===nm)?.color).filter(Boolean);
+    const bar=cols.length?cols.slice(0,4).map(c=>'<div style="flex:1;background:'+(CH[c]||T.s2)+';"></div>').join(''):'<div style="flex:1;background:'+T.s2+';"></div>';
+    return'<button onclick="oEOfS(\''+o.id+'\')" class="oc" style="text-align:left;">'
+      +'<div style="height:5px;display:flex;">'+bar+"</div>"
+      +'<div style="padding:10px 12px 12px;flex:1;"><div style="font-size:12px;font-weight:900;color:'+T.ink+';letter-spacing:-.02em;line-height:1.2;margin-bottom:4px;">'+o.name+"</div>"
+        +'<div style="font-size:10px;color:'+T.t3+';font-weight:600;line-height:1.55;margin-bottom:'+(o.rating?7:0)+'px;">'+o.items.slice(0,3).join(" · ")+(o.items.length>3?" +"+( o.items.length-3):"")+"</div>"
+        +(o.rating>0?sBdg(o.rating,true):"")
+      +"</div></button>";
+  }).join("");
+  return add+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'+cards+"</div>";
+}
+
+// ── STYLE AI ──
+function rStyleAI(){
+  const bought=st.wl.filter(w=>w.bought).length;
+  const budget=st.wl.filter(w=>!w.bought).reduce((s,w)=>s+(parseFloat(w.price)||0),0);
+  let content="";
+  if(st.stab==="recs")content=rRecs();
+  else if(st.stab==="wish")content=rWishlist();
+  else content=rStats();
+  return'<div style="padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid '+T.l1+';">'
+    +'<div style="font-size:28px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">Style IA</div>'
+    +'<div style="display:flex;gap:0;margin-top:14px;border-top:1px solid '+T.l1+';">'
+      +'<div style="flex:1;padding:12px 0;"><div style="font-size:20px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">'+st.wl.length+'</div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-top:4px;">Articles</div></div>'
+      +'<div style="flex:1;padding:12px 0 12px 14px;border-left:1px solid '+T.l1+'"><div style="font-size:20px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">'+bought+'</div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-top:4px;">Achetés</div></div>'
+      +'<div style="flex:1;padding:12px 0 12px 14px;border-left:1px solid '+T.l1+'"><div style="font-size:20px;font-weight:900;letter-spacing:-.04em;color:'+T.ink+';line-height:1;">'+(budget?budget+"€":"0€")+'</div><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-top:4px;">Budget rest.</div></div>'
+    +"</div></div>"
+    +'<div style="display:flex;border-bottom:2px solid '+T.l1+';margin-bottom:18px;" class="tu">'
+      +'<button onclick="sTTab(\'recs\')" class="'+(st.stab==="recs"?"on":"")+'" style="flex:1;">RECO</button>'
+      +'<button onclick="sTTab(\'wish\')" class="'+(st.stab==="wish"?"on":"")+'" style="flex:1;">WISHLIST</button>'
+      +'<button onclick="sTTab(\'stats\')" class="'+(st.stab==="stats"?"on":"")+'" style="flex:1;">STATS</button>'
+    +"</div>"+content;
+}
+
+function rRecs(){
+  const r=st.recs,lo=st.recsL;
+  const btn='<button onclick="genRecs()" class="bp" style="width:100%;margin-bottom:'+(r.length?14:16)+'px;display:flex;align-items:center;justify-content:center;gap:7px;" '+(lo?"disabled":"")+">"+ico("bar",13,"#fff",2)+(lo?"ANALYSE EN COURS…":"ANALYSER MA GARDE-ROBE")+"</button>";
+  if(!r.length&&!lo)return btn+'<div style="text-align:center;padding:52px 16px;border:1px dashed '+T.l1+';">'+ico("spk",22,T.t4)+'<div style="font-size:13px;color:'+T.t2+';font-weight:800;margin-top:14px;letter-spacing:-.02em;">Analyse personnalisée</div><div style="font-size:11px;color:'+T.t4+';margin-top:8px;line-height:1.72;max-width:240px;margin:8px auto 0;">Détecte les lacunes de ta garde-robe et suggère des achats stratégiques.</div></div>';
+  if(lo){const sk=Array.from({length:6},()=>'<div style="border:1px solid '+T.l1+';overflow:hidden;"><div class="skel" style="height:120px;"></div><div style="padding:10px 11px 12px;"><div class="skel" style="height:10px;width:60%;margin-bottom:6px;"></div><div class="skel" style="height:9px;width:40%;"></div></div></div>').join("");return btn+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'+sk+"</div>";}
+  const cards=r.map((item,i)=>{
+    const inW=!!st.wl.find(w=>w.name===item.name);
+    return'<div class="rc" style="animation:fadeIn .25s ease-out '+(i*0.04)+'s both;">'
+      +cTile(item.color,110)
+      +'<div style="padding:10px 11px 12px;border-top:1px solid '+T.l1+';">'
+        +(item.priority>=8?'<span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:'+T.g+';background:'+T.gBg+';padding:2px 7px;">PRIORITÉ</span>':"")
+        +'<div style="font-size:12px;font-weight:900;color:'+T.ink+';letter-spacing:-.02em;line-height:1.2;margin-top:'+(item.priority>=8?5:0)+'px;margin-bottom:2px;">'+item.name+"</div>"
+        +'<div style="font-size:9px;color:'+T.t3+';font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;">'+(item.brand||"—")+(item.price?" · "+item.price+"€":"")+"</div>"
+        +'<div style="font-size:10px;color:'+T.t2+';line-height:1.58;margin-bottom:9px;">'+item.reason+"</div>"
+        +'<button onclick="addToWL('+i+')" '+(inW?"disabled":"")+' style="width:100%;background:'+(inW?T.gBg:T.ink)+';border:1px solid '+(inW?T.gBd:T.ink)+';padding:7px 0;font-size:9px;color:'+(inW?T.g:"#fff")+';cursor:'+(inW?"default":"pointer")+';font-family:inherit;font-weight:800;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px;">'+ico(inW?"chk":"pls",10,inW?T.g:"#fff",2.5)+(inW?"AJOUTÉ":"+ WISHLIST")+"</button>"
+      +"</div></div>";
+  }).join("");
+  return btn+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'+cards+"</div>";
+}
+
+function rWishlist(){
+  const wl=st.wl,bought=wl.filter(w=>w.bought).length;
+  const hdr='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:'+T.t2+';">'+wl.length+' ARTICLE'+(wl.length!==1?"S":"")+(bought>0?'<span style="color:'+T.g+';margin-left:8px;">· '+bought+' ACHETÉ'+(bought!==1?"S":"")+"</span>":"")+'</div><button onclick="oAWiS()" class="bp bs" style="display:flex;align-items:center;gap:6px;">'+ico("pls",12,"#fff",2)+"Ajouter</button></div>";
+  const prog=wl.length>0&&bought>0?'<div style="margin-bottom:14px;padding:11px 13px;background:'+T.gBg+';border:1px solid '+T.gBd+';">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;"><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.g+';">Progression</div><span style="font-size:11px;color:'+T.g+';font-weight:900;">'+Math.round(bought/wl.length*100)+'%</span></div>'
+    +'<div style="height:3px;background:rgba(20,83,45,.12);"><div style="width:'+( bought/wl.length*100)+'%;height:100%;background:'+T.g+';"></div></div></div>':"";
+  if(!wl.length)return hdr+'<div style="text-align:center;padding:52px 16px;border:1px dashed '+T.l1+';">'+ico("str",22,T.t4)+'<div style="font-size:12px;color:'+T.t2+';font-weight:800;margin-top:12px;">Wishlist vide</div></div>';
+  const cards=wl.map(item=>'<div class="wc'+(item.bought?" bgt":"")+'">'
+    +'<div onclick="oEWiS(\''+item.id+'\')" style="cursor:pointer;">'+cTile(item.color,96)+"</div>"
+    +'<div style="padding:9px 11px 12px;border-top:1px solid '+T.l1+';">'
+      +'<div onclick="oEWiS(\''+item.id+'\')" style="font-size:12px;font-weight:900;color:'+T.ink+';text-decoration:'+(item.bought?"line-through":"none")+';letter-spacing:-.02em;line-height:1.2;cursor:pointer;margin-bottom:2px;">'+item.name+"</div>"
+      +'<div style="font-size:9px;color:'+T.t3+';font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:'+(item.price?3:8)+'px;">'+(item.brand||"—")+"</div>"
+      +(item.price?'<div style="font-size:14px;font-weight:900;color:'+T.ink+';margin-bottom:8px;letter-spacing:-.02em;">'+item.price+"€</div>":"")
+      +'<button onclick="tgWL(\''+item.id+'\')" style="width:100%;background:'+(item.bought?T.gBg:T.ink)+';border:1px solid '+(item.bought?T.gBd:T.ink)+';padding:7px 0;font-size:9px;color:'+(item.bought?T.g:"#fff")+';cursor:pointer;font-family:inherit;font-weight:800;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px;">'+ico("chk",10,item.bought?T.g:"#fff",2.5)+(item.bought?"DÉMARQUER":"MARQUER ACHETÉ")+"</button>"
+    +"</div></div>").join("");
+  return hdr+prog+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'+cards+"</div>";
+}
+
+function rStats(){
+  const{pc,df,cc,total}=computeStats();
+  const tp=Object.entries(pc).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const mx=tp[0]?.[1]||1;
+  const tpH=tp.map(([nm,cnt],i)=>{
+    const pct=cnt/mx,item=st.wr.find(w=>w.name===nm),hex=item?(CH[item.color]||T.s3):T.s3;
+    const med=i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
+    return'<div class="sr"><div style="width:24px;font-size:12px;text-align:center;flex-shrink:0;">'+(med||'<span style="font-size:10px;color:'+T.t4+';font-weight:700;">'+(i+1)+"</span>")+"</div>"
+      +'<div style="width:10px;height:10px;background:'+hex+';flex-shrink:0;border:1px solid rgba(0,0,0,.06);"></div>'
+      +'<div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;color:'+T.ink+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+nm+'</div><div style="height:3px;background:'+T.s2+';margin-top:4px;"><div style="width:'+pct*100+'%;height:100%;background:'+T.ink+';"></div></div></div>'
+      +'<div style="font-size:13px;font-weight:900;color:'+T.ink+';min-width:32px;text-align:right;">'+cnt+"×</div></div>";
+  }).join("");
+  const mxD=Math.max(...df,1);
+  const dBars=DF.map((d,i)=>{
+    const pct=df[i]/mxD;
+    return'<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;">'
+      +'<div style="font-size:9px;color:'+T.t3+';font-weight:700;">'+df[i]+"</div>"
+      +'<div style="width:100%;background:'+T.s2+';height:60px;display:flex;align-items:flex-end;"><div style="width:100%;height:'+Math.max(pct*60,2)+'px;background:'+T.ink+';transition:height .4s ease-out;"></div></div>'
+      +'<div style="font-size:9px;font-weight:800;color:'+T.t3+';">'+DS[i]+"</div></div>";
+  }).join("");
+  const topC=Object.entries(cc).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const cH=topC.map(([nm,cnt])=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid '+T.l1+'"><div style="font-size:12px;color:'+T.ink+';font-weight:600;flex:1;">'+nm+'</div><span style="font-size:11px;font-weight:900;color:'+T.ink+';background:'+T.s2+';padding:2px 8px;">'+cnt+"×</span></div>").join("");
+  return'<div style="background:'+T.ink+';padding:14px 16px;margin-bottom:18px;">'
+    +'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px;">Sept. 2025 → Maintenant</div>'
+    +'<div style="display:flex;gap:0;">'
+      +'<div style="flex:1;border-right:1px solid rgba(255,255,255,.1);"><div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-.04em;">'+total+'</div><div style="font-size:9px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Jours portés</div></div>'
+      +'<div style="flex:1;padding-left:16px;"><div style="font-size:26px;font-weight:900;color:#fff;letter-spacing:-.04em;">25</div><div style="font-size:9px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Semaines</div></div>'
+    +"</div></div>"
+    +'<div style="margin-bottom:20px;"><div style="font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:'+T.ink+';margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid '+T.l1+';">'+ico("bar",12,T.ink,2)+' PIÈCES LES PLUS PORTÉES</div>'+(tpH||'<div style="font-size:12px;color:'+T.t4+';padding:16px 0;text-align:center;">Pas encore de données</div>')+"</div>"
+    +'<div style="margin-bottom:20px;"><div style="font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:'+T.ink+';margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid '+T.l1+';">'+ico("trnd",12,T.ink,2)+' ACTIVITÉ PAR JOUR</div><div style="display:flex;gap:6px;align-items:flex-end;padding:0 4px;">'+dBars+"</div></div>"
+    +'<div style="margin-bottom:20px;"><div style="font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:'+T.ink+';margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid '+T.l1+';">'+ico("lyr",12,T.ink,2)+' COMBOS RÉCURRENTS</div>'+(cH||'<div style="font-size:12px;color:'+T.t4+';padding:16px 0;text-align:center;">Pas encore de données</div>')+"</div>";
+}
+
+// ── SHEETS ──
+function rShEvt(){
+  const f=st.evF;
+  return SW2("addEv",f._m==="edit"?"Modifier l'événement":"Nouvel événement",
+    sel("Type",f.type||"École","uEF('type',this.value)",EVT)
+    +fld("Tenue prévue",f.outfit||"","uEF('outfit',this.value)","Pull Noir + Jean Gris…",true)
+    +fld("Note",f.note||"","uEF('note',this.value)","Remarques…")
+    +'<div style="background:'+T.s1+';border:1px solid '+T.l1+';padding:11px 14px;margin-bottom:18px;display:flex;align-items:center;gap:10px;">'
+      +'<input type="checkbox" id="rep-c" '+(f.repeat?"checked":"")+' onchange="uEF(\'repeat\',this.checked)" style="width:15px;height:15px;cursor:pointer;"/>'
+      +'<label for="rep-c" style="font-size:13px;color:'+T.t1+';cursor:pointer;user-select:none;font-weight:600;">Répéter chaque semaine</label>'
+    +"</div>"
+    +'<button onclick="saveEv()" class="bp" style="width:100%;">Sauvegarder</button>'
+    +(f._m==="edit"?'<button onclick="dEFrS(\''+f.id+'\')" class="bd"><span style="display:flex;align-items:center;gap:7px;">'+ico("del",13,T.r)+"Supprimer</span></button>":"")
+  );
+}
+function rShOut(){
+  if(st.aS!=="outfit")return"";
+  const f=st.outF,ev=st.sD.ev||{},dot=EDot[ev.type]||T.t2;
+  const aiB=st.aiSug?'<div style="background:'+T.ink+';padding:13px 14px;margin-bottom:14px;animation:fadeIn .2s ease-out;">'
+    +'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.32);margin-bottom:8px;">Suggestion</div>'
+    +'<p style="font-size:13px;color:rgba(255,255,255,.9);line-height:1.65;margin:0 0 10px;">'+st.aiSug+'</p>'
+    +'<button onclick="useAiS()" style="background:rgba(255,255,255,.1);border:none;padding:6px 12px;font-size:10px;color:rgba(255,255,255,.72);cursor:pointer;font-family:inherit;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">UTILISER</button>'
+    +"</div>":"";
+  return SW2("outfit","Tenue du jour",
+    '<div style="background:'+T.s1+';border:1px solid '+T.l1+';padding:10px 13px;margin-bottom:14px;display:flex;gap:9px;align-items:center;">'
+      +'<div style="width:3px;height:28px;background:'+dot+';flex-shrink:0;"></div>'
+      +'<div><div style="font-size:12px;font-weight:800;color:'+T.ink+';">'+(ev.type||"Tenue libre")+'</div><div style="font-size:10px;color:'+T.t3+';margin-top:1px;">'+DF[st.sd]+"</div></div>"
+    +"</div>"
+    +'<button onclick="getSug()" style="width:100%;background:'+T.s1+';border:1px solid '+T.l2+';padding:12px;font-size:12px;color:'+T.ink+';cursor:pointer;font-family:inherit;margin-bottom:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;">'+ico("spk",13,T.ink)+'SUGGESTION TENUE</button>'
+    +aiB
+    +fld("Tenue",f.outfit||"","uOF('outfit',this.value)","Jean Gris + Pull Ralph + NB Sacai",true)
+    +fld("Note",f.note||"","uOF('note',this.value)","Remarques…")
+    +'<button onclick="saveOut()" class="bp" style="width:100%;">Sauvegarder</button>'
+  );
+}
+function rShRate(){
+  if(st.aS!=="rate")return"";
+  const f=st.rF,ev=st.sD.ev||{};
+  return SW2("rate","Évaluer la tenue",
+    '<div style="background:'+T.s1+';border:1px solid '+T.l1+';padding:11px 13px;margin-bottom:20px;">'
+      +'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-bottom:6px;">'+(ev.type||"")+" · "+DF[st.sd]+"</div>"
+      +'<div style="font-size:13px;color:'+T.ink+';line-height:1.55;font-weight:500;">'+(ev.outfit||"Aucune tenue")+"</div>"
+    +"</div>"
+    +slider("Style & appréciation",f.style||5,"sRS")
+    +slider("Praticité & confort",f.practical||5,"sRP")
+    +'<button onclick="saveRate()" class="bp" style="width:100%;">Valider la notation</button>'
+  );
+}
+function rShWD(){
+  if(st.aS!=="wd")return"";
+  const f=st.wdF,isA=!f.id;
+  return SW2("wd",isA?"Nouveau vêtement":"Modifier le vêtement",
+    fld("Nom *",f.name||"","uWF('name',this.value)","Ex: Pull Gris")
+    +fld("Marque",f.brand||"","uWF('brand',this.value)","Ralph Lauren, Nike…")
+    +sel("Catégorie",f.category||CATS[0],"uWF('category',this.value)",CATS)
+    +cpick(f.color||GC[0],"wd")
+    +'<hr style="border:none;border-top:1px solid '+T.l1+';margin:4px 0 16px;"/>'
+    +slider("Coupe",f.scoreCut||5,"sWCut")
+    +slider("Appréciation",f.scoreLike||5,"sWLike")
+    +slider("Fréquence de port",f.scoreWorn||5,"sWWorn")
+    +'<hr style="border:none;border-top:1px solid '+T.l1+';margin:4px 0 16px;"/>'
+    +'<div style="margin-bottom:18px;"><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-bottom:8px;">Photo</div>'
+      +'<div style="display:flex;gap:10px;align-items:center;"><label for="ph-in" class="bo" style="padding:9px 16px;font-size:12px;cursor:pointer;">Choisir une photo</label><input id="ph-in" type="file" accept="image/*" style="display:none;" onchange="onPhC(this)"/>'+(f.photo?'<img src="'+f.photo+'" alt="" style="width:48px;height:48px;object-fit:cover;border:1px solid '+T.l1+';"/>':"")+"</div>"
+    +"</div>"
+    +'<button onclick="saveWD()" class="bp" style="width:100%;">Sauvegarder</button>'
+    +(!isA?'<button onclick="dWD(\''+f.id+'\')" class="bd"><span style="display:flex;align-items:center;gap:7px;">'+ico("del",13,T.r)+"Supprimer</span></button>":"")
+  ,true);
+}
+function rShOf(){
+  if(st.aS!=="ofS")return"";
+  const f=st.ofF,isA=!f.id;
+  const catIt=CATS.map(cat=>{
+    const its=st.wr.filter(w=>w.category===cat);if(!its.length)return"";
+    const rows=its.map(item=>{
+      const s=(f.items||[]).includes(item.name);
+      return'<button class="oib'+(s?" on":"")+'" onclick="tgOfI(\''+item.name.replace(/'/g,"\\'")+'\')" style="background:'+(s?T.ink:T.bg)+'">'
+        +'<div style="width:14px;height:14px;background:'+(CH[item.color]||T.s2)+';border:1px solid '+(s?"rgba(255,255,255,.15)":T.l1)+';flex-shrink:0;"></div>'
+        +'<div style="flex:1;min-width:0;"><div style="font-size:11px;color:'+(s?"#fff":T.ink)+';font-weight:800;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">'+item.name+"</div><div style=\"font-size:9px;color:"+(s?"rgba(255,255,255,.42)":T.t3)+";margin-top:1px;\">"+(item.brand||"—")+" · "+item.color+"</div></div>"
+        +(s?ico("chk",11,"rgba(255,255,255,.6)",2.5):"")
+      +"</button>";
+    }).join("");
+    return'<div><div style="font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:'+T.t4+';padding:7px 10px;background:'+T.s1+';border-bottom:1px solid '+T.l1+';">'+cat+"</div>"+rows+"</div>";
+  }).join("");
+  const sc=(f.items||[]).length;
+  return SW2("ofS",isA?"Créer une tenue":"Modifier la tenue",
+    fld("Nom de la tenue *",f.name||"","uOfF('name',this.value)","Ex: Ralph Day")
+    +'<div style="margin-bottom:16px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';">Pièces · '+sc+' sélectionnée'+(sc>1?"s":"")+"</div>"+(sc>0?'<button onclick="clrOfI()" style="background:none;border:none;font-size:9px;color:'+T.r+';cursor:pointer;font-weight:700;font-family:inherit;">TOUT DÉSÉLECT.</button>':"")+"</div>"
+      +'<div style="max-height:300px;overflow-y:auto;border:1px solid '+T.l1+';">'+catIt+"</div>"
+    +"</div>"
+    +fld("Note",f.note||"","uOfF('note',this.value)","Occasion, météo, style…")
+    +slider("Note globale",f.rating||5,"sOfR")
+    +'<button onclick="saveOf()" class="bp" style="width:100%;">Sauvegarder la tenue</button>'
+    +(!isA?'<button onclick="dOf(\''+f.id+'\')" class="bd"><span style="display:flex;align-items:center;gap:7px;">'+ico("del",13,T.r)+"Supprimer</span></button>":"")
+  ,true);
+}
+function rShAn(){
+  if(st.aS!=="an")return"";
+  const an=st.an,lo=st.anL;
+  let c="";
+  if(lo){
+    const sk=[100,80,90,70,85].map((w,i)=>'<div style="border:1px solid '+T.l1+';padding:12px 14px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><div class="skel" style="height:11px;width:'+Math.round(w*0.45)+'%;"></div><div class="skel" style="height:11px;width:18%;"></div></div><div class="skel" style="height:9px;margin-bottom:5px;"></div><div class="skel" style="height:9px;width:'+w+'%;margin-bottom:10px;"></div><div class="skel" style="height:2px;"></div></div>').join("");
+    c='<div style="background:'+T.s1+';border:1px solid '+T.l1+';padding:18px 14px;margin-bottom:14px;"><div style="display:flex;justify-content:center;align-items:center;height:200px;flex-direction:column;gap:16px;">'
+      +'<div style="display:flex;gap:5px;">'
+        +[0,1,2].map(i=>'<div style="width:8px;height:8px;background:'+T.l2+';border-radius:50%;animation:pulse .9s ease-in-out '+(i*0.2)+'s infinite;"></div>').join("")
+      +"</div><div style=\"font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:"+T.t3+';">Analyse en cours…</div></div></div>'+sk;
+  }else if(an){
+    const cr=AI.colorReport(st.wr);
+    const det=Object.entries(an.details).map(([cat,text])=>{
+      const raw=an.scores?.[cat],sc=raw!=null?Math.min(10,Math.max(1,Math.round(raw))):null;
+      return'<div style="border:1px solid '+T.l1+';padding:12px 14px;margin-bottom:8px;">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;"><span style="font-size:12px;font-weight:900;color:'+T.ink+';text-transform:uppercase;letter-spacing:.04em;">'+cat+"</span>"+(sc!=null?sBdg(sc):"")+"</div>"
+        +'<p style="font-size:12px;color:'+T.t2+';line-height:1.72;margin:0 0 10px;">'+text+"</p>"
+        +(sc!=null?'<div style="height:2px;background:'+T.s3+'"><div style="width:'+sc*10+'%;height:100%;background:'+(sc>=7?T.g:sc>=5?T.a:T.r)+';"></div></div>':"")
+      +"</div>";
+    }).join("");
+    c='<div style="background:'+T.s1+';border:1px solid '+T.l1+';padding:18px 14px;margin-bottom:14px;">'+spider(an.scores)+"</div>"
+      +(an.feedback?'<div style="background:'+T.s1+';border:1px solid '+T.l1+';padding:13px 14px;margin-bottom:14px;"><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-bottom:8px;">Analyse globale</div><p style="font-size:13px;color:'+T.t1+';line-height:1.78;margin:0;">'+an.feedback+"</p></div>":"")
+      +(cr?'<div style="background:'+T.bBg+';border:1px solid #BFDBFE;padding:13px 14px;margin-bottom:14px;"><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.b+';margin-bottom:8px;">Palette de couleurs</div><p style="font-size:13px;color:'+T.b+';line-height:1.7;margin:0;">'+cr+"</p></div>":"")
+      +det
+      +'<button onclick="runAn()" class="bo" style="width:100%;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:7px;">'+ico("bar",12,T.t2,1.8)+"Relancer l'analyse</button>";
+  }else{
+    c='<div style="text-align:center;padding:56px 0;">'+ico("bar",22,T.t4)+'<div style="font-size:12px;color:'+T.t3+';font-weight:700;margin-top:10px;">Aucune analyse</div><button onclick="runAn()" class="bp" style="margin:16px auto 0;display:flex;align-items:center;gap:7px;">'+ico("bar",13,"#fff",2)+"Lancer l'analyse</button></div>";
+  }
+  return SW2("an","Rapport garde-robe",c,true);
+}
+function rShWi(){
+  if(st.aS!=="wi")return"";
+  const f=st.wiF,isA=!f.id;
+  return SW2("wi",isA?"Ajouter à la wishlist":"Modifier l'article",
+    fld("Nom *",f.name||"","uWiF('name',this.value)","Ex: Pull Gris COS")
+    +sel("Catégorie",f.category||CATS[0],"uWiF('category',this.value)",CATS)
+    +cpick(f.color||GC[0],"wi")
+    +fld("Marque",f.brand||"","uWiF('brand',this.value)","Nike, Ralph Lauren…")
+    +fld("Budget (€)",f.price||"","uWiFP(this.value)","80")
+    +fld("Note",f.reason||"","uWiF('reason',this.value)","Pourquoi ce vêtement…",true)
+    +'<button onclick="saveWi()" class="bp" style="width:100%;">Sauvegarder</button>'
+    +(!isA?'<button onclick="dWi(\''+f.id+'\')" class="bd"><span style="display:flex;align-items:center;gap:7px;">'+ico("del",13,T.r)+"Supprimer</span></button>":"")
+  ,true);
+}
+
+// ── SHEET SUGGESTION PAR JOUR ──
+function rShSug(){
+  if(st.aS!=="sug")return"";
+  const di=st.sugDay,txt=st.sugText,lo=st.sugLoading;
+  const dayBtns=DF.map((d,i)=>{
+    const iS=di===i;
+    return'<button onclick="setSugDay('+i+')" style="flex:1;background:'+(iS?T.ink:T.s1)+';border:1px solid '+(iS?T.ink:T.l1)+';padding:10px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:background .1s;">'
+      +'<span style="font-size:9px;font-weight:800;letter-spacing:.1em;color:'+(iS?"rgba(255,255,255,.5)":T.t4)+';">'+DS[i]+"</span>"
+      +'<span style="font-size:13px;font-weight:900;color:'+(iS?"#fff":T.ink)+';letter-spacing:-.02em;">'+d.slice(0,3)+"</span>"
+    +"</button>";
+  }).join("");
+  const sugBlock=lo
+    ?'<div style="background:'+T.s1+';border:1px solid '+T.l1+';padding:18px 14px;"><div style="display:flex;justify-content:center;align-items:center;height:60px;gap:8px;">'
+      +[0,1,2].map(i=>'<div style="width:7px;height:7px;background:'+T.l2+';border-radius:50%;animation:pulse .9s ease-in-out '+(i*0.2)+'s infinite;"></div>').join("")
+    +"</div></div>"
+    :txt
+      ?'<div style="background:'+T.ink+';padding:16px 18px;animation:fadeIn .2s ease-out;">'
+        +'<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:10px;">'+DF[di]+" — Suggestion grisch</div>"
+        +'<p style="font-size:14px;color:rgba(255,255,255,.9);line-height:1.75;margin:0 0 14px;font-weight:400;">'+txt+"</p>"
+        +'<button onclick="useSugDay()" style="background:rgba(255,255,255,.12);border:none;padding:8px 14px;font-size:10px;color:rgba(255,255,255,.8);cursor:pointer;font-family:inherit;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">APPLIQUER AU PLANNING</button>'
+      +"</div>"
+      :'<div style="background:'+T.s1+';border:1px solid '+T.l1+';padding:24px 16px;text-align:center;">'
+        +'<div style="font-size:12px;color:'+T.t3+';font-weight:600;">Sélectionne un jour et génère une suggestion</div>'
+      +"</div>";
+  return SW2("sug","Suggestion par jour",
+    '<div style="margin-bottom:16px;"><div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+T.t3+';margin-bottom:10px;">Quel jour ?</div>'
+    +'<div style="display:flex;gap:4px;">'+dayBtns+"</div></div>"
+    +'<button onclick="genSugDay()" class="bp" style="width:100%;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:7px;" '+(lo?"disabled":"")+">"+ico("magic",13,"#fff",2)+(lo?"GÉNÉRATION…":"GÉNÉRER LA SUGGESTION")+"</button>"
+    +sugBlock
+  );
+}
+
+// ── RENDER PRINCIPAL ──
+function rS(){
+  const c=document.getElementById("sc");
+  c.innerHTML=rShEvt()+rShOut()+rShRate()+rShWD()+rShOf()+rShAn()+rShWi()+rShSug();
+}
+function render(){
+  const app=document.getElementById("app");
+  let page="";
+  if(st.tab===0)page=rPlanning();
+  else if(st.tab===1)page=rWardrobe();
+  else page=rStyleAI();
+  const nav=[{l:"Planning",i:"cal"},{l:"Garde-robe",i:"hng"},{l:"Style IA",i:"str"}];
+  app.innerHTML='<div style="height:env(safe-area-inset-top,44px);background:#fff;"></div>'
+    +'<header style="height:48px;padding:0 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid '+T.l1+';background:#fff;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;">'
+      +'<span style="font-size:15px;font-weight:900;letter-spacing:.06em;color:'+T.ink+';text-transform:uppercase;">GRISCH</span>'
+      +'<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:9px;font-weight:800;letter-spacing:.14em;color:'+T.t4+';">'+st.wr.length+' PIÈCES</span><div style="width:1px;height:12px;background:'+T.l1+'"></div><span style="font-size:9px;font-weight:800;letter-spacing:.14em;color:'+T.t4+';">'+st.ev.filter(e=>e.outfit).length+' TENUES</span></div>'
+    +"</header>"
+    +'<main style="padding:20px 18px;padding-bottom:90px;overflow-y:auto;-webkit-overflow-scrolling:touch;">'+page+"</main>"
+    +'<nav style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid '+T.l1+';padding-bottom:env(safe-area-inset-bottom,12px);z-index:50;">'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);">'
+        +nav.map((t,i)=>{const on=st.tab===i;return'<button onclick="setTab('+i+')" style="background:none;border:none;cursor:pointer;padding:12px 8px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:inherit;position:relative;">'+(on?'<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:2px;background:'+T.ink+';"></div>':"")
+          +ico(t.i,20,on?T.ink:T.t4,on?2.2:1.6)+'<span style="font-size:8px;letter-spacing:.14em;font-weight:'+(on?900:600)+';color:'+(on?T.ink:T.t4)+';text-transform:uppercase;">'+t.l+"</span></button>";}).join("")
+      +"</div>"
+    +"</nav>";
+  rS();
+}
+
+// ── ACTIONS ──
+function setTab(i){st.tab=i;render();}
+function selDay(i){st.sd=i;st.rt="";st.twd="";render();}
+function chgWk(d,m){if(m==="r")st.wo=0;else st.wo+=d;st.rt="";st.twd="";render();}
+function refreshRec(){st.rk++;st.rt="";st.twd="";render();}
+
+// Suggestion par jour
+function oSugSheet(){st.sugDay=st.sd;st.sugText="";st.sugLoading=false;oS("sug");}
+function setSugDay(i){st.sugDay=i;st.sugText="";rS();}
+function genSugDay(){
+  st.sugLoading=true;rS();
+  setTimeout(()=>{
+    st.sugText=AI.rec(st.wr,st.sugDay,st.rk+100);
+    st.sugLoading=false;rS();
+  },600);
+}
+function useSugDay(){
+  // Navigue vers le jour sélectionné et affiche la suggestion dans la carte
+  st.sd=st.sugDay;st.rt="";st.twd=st.sugText;
+  // Met la suggestion comme recText pour affichage immédiat
+  const txt=st.sugText;st.rt=txt;st.twd=txt;
+  cS();
+}
+
+// Events
+function oAES(){st.evF={type:"École",repeat:false,dayOfWeek:st.sd,date:fmt(gWD()[st.sd]),outfit:"",note:"",_m:"add"};oS("addEv");}
+function oEES(id){const ev=st.ev.find(e=>e.id===id);if(!ev)return;st.evF={...ev,_m:"edit"};oS("addEv");}
+function uEF(k,v){st.evF[k]=v;rS();}
+function saveEv(){
+  const f=st.evF;
+  if(f._m==="add"){const{_m,...r}=f;st.ev.push({...r,id:Date.now()+"",outfitRating:{}});}
+  else{const idx=st.ev.findIndex(e=>e.id===f.id);if(idx>=0){const{_m,...r}=f;st.ev[idx]={...r};}}
+  sv("gq_ev4",st.ev);toast("Événement sauvegardé ✓","g");cS();
+}
+function dEv(id){st.ev=st.ev.filter(e=>e.id!==id);sv("gq_ev4",st.ev);toast("Événement supprimé");render();}
+function dEFrS(id){dEv(id);cS();}
+
+// Outfit sur event
+function oOSp(evId,standalone){
+  const wd=gWD();
+  if(standalone){st.sD={ev:{id:null,type:"Tenue libre",outfit:"",note:""},standalone:true};st.outF={outfit:"",note:"",evId:null,standalone:true,di:st.sd,date:fmt(wd[st.sd])};}
+  else{const ev=st.ev.find(e=>e.id===evId);if(!ev)return;st.sD={ev};st.outF={outfit:ev.outfit||"",note:ev.note||"",evId,standalone:false,di:st.sd,date:fmt(wd[st.sd])};}
+  st.aiSug="";oS("outfit");
+}
+function uOF(k,v){st.outF[k]=v;rS();}
+function getSug(){st.aiSug=AI.suggest(st.wr,st.sD.ev?.type||"École",st.sd);rS();}
+function useAiS(){st.outF.outfit=st.aiSug;rS();}
+function saveOut(){
+  const f=st.outF;
+  if(f.standalone){st.ev.push({id:Date.now()+"",type:"Tenue libre",date:f.date,dayOfWeek:f.di,repeat:false,outfit:f.outfit,note:f.note,outfitRating:{}});}
+  else{const idx=st.ev.findIndex(e=>e.id===f.evId);if(idx>=0)st.ev[idx]={...st.ev[idx],outfit:f.outfit,note:f.note};}
+  sv("gq_ev4",st.ev);toast("Tenue sauvegardée ✓","g");cS();
+}
+
+// Rating
+function oRS(evId){const ev=st.ev.find(e=>e.id===evId);if(!ev)return;st.sD={ev};st.rF={style:ev.outfitRating?.style||5,practical:ev.outfitRating?.practical||5,evId};oS("rate");}
+function sRS(v){st.rF.style=v;rS();}
+function sRP(v){st.rF.practical=v;rS();}
+function saveRate(){
+  const f=st.rF,idx=st.ev.findIndex(e=>e.id===f.evId);
+  if(idx>=0)st.ev[idx]={...st.ev[idx],outfitRating:{style:f.style,practical:f.practical}};
+  sv("gq_ev4",st.ev);toast("Notation enregistrée ✓","g");cS();
+}
+
+// Wardrobe
+function sWSec(s){st.wSec=s;st.wSrch="";st.wCat=null;render();}
+function sWSrch(v){st.wSrch=v;render();}
+function sWCat(c){st.wCat=c;render();}
+function clrWF(){st.wSrch="";st.wCat=null;render();}
+function oAWS(){st.wdF={name:"",brand:"",color:GC[0],category:CATS[0],scoreCut:7,scoreLike:7,scoreWorn:5,photo:""};oS("wd");}
+function oEWS(id){const it=st.wr.find(w=>w.id===id);if(!it)return;st.wdF={...it};oS("wd");}
+function uWF(k,v){st.wdF[k]=v;rS();}
+function setFC(fk,c){if(fk==="wd")st.wdF.color=c;else if(fk==="wi")st.wiF.color=c;rS();}
+function sWCut(v){st.wdF.scoreCut=v;rS();}
+function sWLike(v){st.wdF.scoreLike=v;rS();}
+function sWWorn(v){st.wdF.scoreWorn=v;rS();}
+function onPhC(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{st.wdF.photo=rd.result;rS();};rd.readAsDataURL(f);}
+function saveWD(){
+  const f=st.wdF;if(!f.name?.trim()){toast("Le nom est obligatoire","err");return;}
+  if(!f.id){st.wr.push({...f,id:Date.now()+""});toast("Vêtement ajouté ✓","g");}
+  else{const idx=st.wr.findIndex(w=>w.id===f.id);if(idx>=0)st.wr[idx]={...f};toast("Modifié ✓","g");}
+  sv("gq_wr4",st.wr);cS();
+}
+function dWD(id){st.wr=st.wr.filter(w=>w.id!==id);sv("gq_wr4",st.wr);toast("Supprimé");cS();}
+
+// Outfits sauvegardés
+function oAOfS(){st.ofF={name:"",items:[],note:"",rating:5};oS("ofS");}
+function oEOfS(id){const o=st.of.find(o=>o.id===id);if(!o)return;st.ofF={...o,items:[...(o.items||[])]};oS("ofS");}
+function uOfF(k,v){st.ofF[k]=v;rS();}
+function tgOfI(nm){const it=st.ofF.items||[];st.ofF.items=it.includes(nm)?it.filter(x=>x!==nm):[...it,nm];rS();}
+function clrOfI(){st.ofF.items=[];rS();}
+function sOfR(v){st.ofF.rating=v;rS();}
+function saveOf(){
+  const f=st.ofF;if(!f.name?.trim()){toast("Le nom est obligatoire","err");return;}
+  if(!f.id){st.of.push({...f,id:Date.now()+""});toast("Tenue sauvegardée ✓","g");}
+  else{const idx=st.of.findIndex(o=>o.id===f.id);if(idx>=0)st.of[idx]={...f};toast("Tenue sauvegardée ✓","g");}
+  sv("gq_of4",st.of);cS();
+}
+function dOf(id){st.of=st.of.filter(o=>o.id!==id);sv("gq_of4",st.of);toast("Supprimé");cS();}
+
+// Analyse
+function runAn(){
+  st.anL=true;st.an=null;oS("an");
+  setTimeout(()=>{
+    try{st.an=AI.analyze(st.wr);toast("Analyse générée ✓","g");}
+    catch(e){toast("Erreur","err");}
+    st.anL=false;rS();
+  },750);
+}
+
+// Style AI
+function sTTab(t){st.stab=t;render();}
+function genRecs(){st.recsL=true;render();setTimeout(()=>{st.recs=AI.styleRecs(st.wr);st.recsL=false;render();},700);}
+function addToWL(i){
+  const item=st.recs[i];if(!item)return;
+  if(!st.wl.find(w=>w.name===item.name)){st.wl.push({...item,id:Date.now()+"",bought:false});sv("gq_wl4",st.wl);toast("Ajouté à la wishlist ✓","g");}
+  else toast("Déjà dans la wishlist");
+  render();
+}
+function tgWL(id){const it=st.wl.find(w=>w.id===id);if(!it)return;it.bought=!it.bought;sv("gq_wl4",st.wl);toast(it.bought?"Acheté ✓":"Démarqué","g");render();}
+function oAWiS(){st.wiF={name:"",category:CATS[0],color:GC[0],brand:"",price:"",reason:"",bought:false};oS("wi");}
+function oEWiS(id){const it=st.wl.find(w=>w.id===id);if(!it)return;st.wiF={...it};oS("wi");}
+function uWiF(k,v){st.wiF[k]=v;rS();}
+function uWiFP(v){st.wiF.price=v.replace(/[^0-9]/g,"");rS();}
+function saveWi(){
+  const f=st.wiF;if(!f.name?.trim()){toast("Le nom est obligatoire","err");return;}
+  if(!f.id){st.wl.push({...f,id:Date.now()+""});toast("Ajouté ✓","g");}
+  else{const idx=st.wl.findIndex(w=>w.id===f.id);if(idx>=0)st.wl[idx]={...f};toast("Modifié ✓","g");}
+  sv("gq_wl4",st.wl);cS();
+}
+function dWi(id){st.wl=st.wl.filter(w=>w.id!==id);sv("gq_wl4",st.wl);toast("Supprimé");cS();}
+
+// INIT
+render();
+setTimeout(()=>{
+  const txt=AI.rec(st.wr,st.sd,st.rk);st.rt=txt;
+  startTW(txt,(d,r)=>{st.twd=d;const el=document.getElementById("tw-text");if(el)el.innerHTML=d+(r?'<span style="opacity:.4;animation:blink .7s step-end infinite;">▍</span>':"");});
+},100);
+</script>
+</body>
+</html>
